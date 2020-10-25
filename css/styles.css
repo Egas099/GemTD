@@ -1,8 +1,8 @@
 /* CSS */
 canvas{
     border: 3px rgba(189, 189, 189, 0.829) groove;
-    /* width: 1000px; */
-    /* height: 500px; */
+    width: 500px;
+    height: 500px;
 }
 input{
     width: 100%;

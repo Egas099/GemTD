@@ -6,6 +6,7 @@ class SpriteRender extends MonoBehavior{
             this.renderImage.src = _renderImage;
         }
         this.parent = _parent;
+        this.className = "SpriteRender";
     }
     render(){
         if (this.renderImage)
