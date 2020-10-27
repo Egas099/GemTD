@@ -1,12 +1,13 @@
 /* CSS */
 canvas{
+    padding: 0;
     border: 3px rgba(189, 189, 189, 0.829) groove;
-    width: 500px;
-    height: 500px;
+    width: 800px;
+    height: 500px; 
 }
 input{
     width: 100%;
-    height: 5em;
+    height: 5vh;
 }
 .centre{
     display: flex;

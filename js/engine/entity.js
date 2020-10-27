@@ -1,4 +1,6 @@
 class Game {
+    #gameStop = false;
+    gameLoop;
     constructor() {
         /**Массив прототипов класса MonoBehavior*/
         this.prototypesMonoBehavior = [];
@@ -27,8 +29,25 @@ class Game {
             GameObject.Instantiate(initialInstancesOfGameObjects[object]);
         }
     }
+    getGameStop(){
+        return this.#gameStop;
+    }
     Start(){
         this.initInstant();
+        MonoBehavior.Start();
+        this.gameLoop = setInterval(game.Update, 17);
+    }
+    Stop(){
+        clearInterval(this.gameLoop);
+        this.#gameStop = true;
+    }
+    Continue(){
+        this.#gameStop = false;
+        this.gameLoop = setInterval(game.Update, 17);
+    }
+    Update(){
+        MonoBehavior.Update();
+        RenderInterface.renderNextFrame();
     }
 }
 class MonoBehavior {
@@ -51,7 +70,7 @@ class MonoBehavior {
 class GameObject {
     /**Массив компонентов */
     components = {};
-    constructor(_position = new Vector2(0, 0), _size = new Vector2(0, 0)) {
+    constructor(_position = Vector2, _size = Vector2) {
         game.addPrototypeOfGameObject(this);
         this.position = _position;
         this.size = _size;
@@ -103,11 +122,14 @@ class GameObject {
         comp.forEach(element => {
             obj.addComponent(element);
         });
+        // this.components.forEach(comp => {
+        //     comp.Start();
+        // });
         return obj;
     }
 }
 class Vector2 {
-    constructor(x, y) {
+    constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }
@@ -127,7 +149,6 @@ class Vector2 {
      * Приведение вектора к направляющему
      * @param _ector Vector2 - Вектор
      */
-
     static Direction(_vector) {
         let x = Math.floor(_vector.x);
         let y = Math.floor(_vector.y);
@@ -162,5 +183,78 @@ class Vector2 {
      */
     static Distance(_firstVector, _secondVector){
         return Math.sqrt((_secondVector.x - _firstVector.x)**2 + (_secondVector.y - _firstVector.y)**2)
+    }
+}
+class RenderInterface {
+    static times = [];
+    static debugInfo = true;
+    static nextFrame = [];
+    static canvas = document.getElementById("canvas");
+    static context = canvas.getContext("2d");
+    constructor(){
+        this.canvas = document.getElementById("canvas"); // Получаем ссылку на canvas
+        this.context = canvas.getContext("2d"); // Создаём и получаем контекст рисования на 2d холсте
+    }
+    /**
+     * Добавление изображения в список отрисовываемых элементов
+     * @param {*} _image - изображение
+     * @param {*} _x - позиия x
+     * @param {*} _y - позиия y
+     * @param {*} _width - ширина
+     * @param {*} _height - длина
+     * @param {*} _depth - глубина отрисовки (элементы с большей глубиной отрисовываются первыми)
+     */
+    static drawImage(_image, _x, _y, _width, _height, _depth = 0){
+        this.nextFrame.push({
+            type: "image",
+            depth: _depth,
+            image:_image,
+            x: _x,
+            y: _y,
+            width: _width,
+            height: _height,
+        });
+    }
+    /**
+     * Отрисовка следующени кадра
+     */
+    static renderNextFrame(){
+        this.context.clearRect(0, 0, canvas.width, canvas.height); // Очистка canvas
+        this.nextFrame.sort((a, b) => a.depth > b.depth ? 1 : -1);
+        this.nextFrame.forEach(object => {
+            switch (object.type) {
+                case "image":
+                    this.context.drawImage(object.image, object.x, object.y, object.width, object.height);
+                    break;
+                default:
+                    break;
+            }
+        });
+        if (this.debugInfo) 
+            this.renderDebugInfo();
+        this.nextFrame = [];
+    }
+    /**
+     * Отрисовка данных для отдладки
+     */
+    static renderDebugInfo(){
+        this.context.font = "20px serif";
+        this.context.fillText("Обьектов: " + game.prototypesGameObject.length, canvas.width - 150, 20);
+        this.context.fillText("Компонентов: " + game.prototypesMonoBehavior.length, canvas.width - 150, 40);
+        window.requestAnimationFrame(() => {
+            const now = performance.now();
+            while (this.times.length > 0 && this.times[0] <= now - 1000) {
+            this.times.shift();
+            }
+            this.times.push(now);
+        });
+        this.context.fillText("Fps: " + this.times.length, canvas.width - 150, 60);
+    }
+}
+class GUIObject {
+    components = {};
+    constructor(_position = Vector2, _size = Vector2) {
+        this.position = _position;
+        this.size = _size;
     }
 }

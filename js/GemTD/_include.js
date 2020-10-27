@@ -1,3 +1,4 @@
 _currentDirPath = "js/GemTD/"
-include(_currentDirPath + "classes.js");
+include(_currentDirPath + "entity.js");
 include(_currentDirPath + "components.js");
+include(_currentDirPath + "system.js");

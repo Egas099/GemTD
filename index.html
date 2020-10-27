@@ -4,17 +4,18 @@
 <head>
     <title>Gem TD</title>
     <meta charset="utf-8">
-    <script src="js/includer.js"></script>
     <link href="css/styles.css" rel="stylesheet">
+    <script src="js/includer.js"></script>
 </head>
 
-<body onload="init()">
+<body onload="initialisation()">
     <div class="centre">
-        <canvas id="canvas" width="800" height="800" ></canvas>
+        <canvas id="canvas" width="1200" height="800" ></canvas>
     </div>
 
     <form>
-        <input id="tup" type="button" value="Нажми меня!" onclick="act()">
+        <input id="tup" type="button" value="Нажми меня!" onclick="buttonClick()">
+        <input id="tup" type="button" value="Стоп" onclick="stop()">
     </form>
 </body>
 </html>
