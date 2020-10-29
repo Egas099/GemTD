@@ -6,6 +6,8 @@ class Game {
         this.prototypesMonoBehavior = [];
         /**Массив прототипов класса GameObject*/
         this.prototypesGameObject = [];
+        /**Массив прототипов класса GUIObject*/
+        this.prototypesGUIObject = [];
     }
     /**
      * Добавление нового прототипа MonoBehavior
@@ -34,7 +36,6 @@ class Game {
     }
     Start(){
         this.initInstant();
-        MonoBehavior.Start();
         this.gameLoop = setInterval(game.Update, 17);
     }
     Stop(){
@@ -46,13 +47,14 @@ class Game {
         this.gameLoop = setInterval(game.Update, 17);
     }
     Update(){
-        MonoBehavior.Update();
         RenderInterface.renderNextFrame();
+        MonoBehavior.Update();
     }
 }
 class MonoBehavior {
-    constructor() {
+    constructor(_parent) {
         game.addPrototypeOfMonoBehavior(this);
+        this.parent = _parent;
         this.className = "MonoBehavior";
     }
     static Start() {
@@ -104,11 +106,12 @@ class GameObject {
      * @param _componentName Имя компонента (класса)
      */
     findComponentByName(_componentName) {
-        if (_componentName in this.components) {
-            return this.components._componentName;
-        } else {
-            return null;
+        for(var comp in this.components)
+        {
+            if (comp == _componentName)
+                return this.components[comp];
         }
+        return null;
     }
     /**
      * Создание GameObject из заготовки(префаба).
@@ -122,10 +125,24 @@ class GameObject {
         comp.forEach(element => {
             obj.addComponent(element);
         });
-        // this.components.forEach(comp => {
-        //     comp.Start();
-        // });
+        comp.forEach(element => {
+            element.Start();
+        });
         return obj;
+    }
+    static Destroy(_object){
+        for(let component in _object.components){
+            for(var mono in game.prototypesMonoBehavior) {
+                if (game.prototypesMonoBehavior[mono] === _object.components[component]) {
+                    game.prototypesMonoBehavior.splice(mono, 1);
+                }
+            }
+        }
+        for(let object in game.prototypesGameObject){
+            if (game.prototypesGameObject[object] === _object) {
+                game.prototypesGameObject.splice(object, 1);
+            }
+        }
     }
 }
 class Vector2 {
@@ -204,15 +221,22 @@ class RenderInterface {
      * @param {*} _height - длина
      * @param {*} _depth - глубина отрисовки (элементы с большей глубиной отрисовываются первыми)
      */
-    static drawImage(_image, _x, _y, _width, _height, _depth = 0){
+    static drawImage(_image, _x = 0, _y = 0, _width = 0, _height = 0, _depth = 0){
         this.nextFrame.push({
             type: "image",
-            depth: _depth,
             image:_image,
-            x: _x,
-            y: _y,
-            width: _width,
-            height: _height,
+            x: _x, y: _y,
+            width: _width, height: _height,
+            depth: _depth,
+        });
+    }
+    static fillText(_text, _x = 0, _y = 0, _maxWidth = undefined, _depth = 0){
+        this.nextFrame.push({
+            type: "text",
+            text: _text,
+            x: _x, y: _y,
+            maxWidth: _maxWidth,
+            depth: _depth,
         });
     }
     /**
@@ -225,6 +249,9 @@ class RenderInterface {
             switch (object.type) {
                 case "image":
                     this.context.drawImage(object.image, object.x, object.y, object.width, object.height);
+                    break;
+                case "text":
+                    this.context.fillText(object.text, object.x, object.y, object.maxWidth);
                     break;
                 default:
                     break;
@@ -239,8 +266,9 @@ class RenderInterface {
      */
     static renderDebugInfo(){
         this.context.font = "20px serif";
-        this.context.fillText("Обьектов: " + game.prototypesGameObject.length, canvas.width - 150, 20);
-        this.context.fillText("Компонентов: " + game.prototypesMonoBehavior.length, canvas.width - 150, 40);
+        this.context.fillText("Обьектов: " + game.prototypesGameObject.length, canvas.width - 200, 20);
+        this.context.fillText("Компонентов: " + game.prototypesMonoBehavior.length, canvas.width - 200, 40);
+        this.context.fillText("Спрайтов: " + this.nextFrame.length, canvas.width - 200, 60);
         window.requestAnimationFrame(() => {
             const now = performance.now();
             while (this.times.length > 0 && this.times[0] <= now - 1000) {
@@ -248,13 +276,6 @@ class RenderInterface {
             }
             this.times.push(now);
         });
-        this.context.fillText("Fps: " + this.times.length, canvas.width - 150, 60);
-    }
-}
-class GUIObject {
-    components = {};
-    constructor(_position = Vector2, _size = Vector2) {
-        this.position = _position;
-        this.size = _size;
+        this.context.fillText("Fps: " + this.times.length, canvas.width - 200, 80);
     }
 }
