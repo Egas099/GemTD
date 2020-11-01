@@ -11,4 +11,8 @@ function stop(){
         game.Stop();
     }
 }
+function changeFrameTime(){
+    time = document.getElementById("frameTime").value;
+    game.changeFrameTime(Math.round(1000/time));
+}
 

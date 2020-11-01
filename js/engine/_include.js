@@ -1,4 +1,3 @@
 _currentDirPath = "js/engine/"
-include(_currentDirPath + "entity.js");
-include(_currentDirPath + "components.js");
-include(_currentDirPath + "system.js");
+include(_currentDirPath + "entity/_include.js");
+include(_currentDirPath + "components/_include.js");

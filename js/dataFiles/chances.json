@@ -1,0 +1,103 @@
+{
+    "levels": [
+        {
+            "chances": {
+                "chiped": 100,
+                "flawed": 0,
+                "normal": 0,
+                "flawless": 0,
+                "perfect": 0
+            },
+            "upgrageCost": 20,
+            "level": 0
+        },
+        {
+            "chances": {
+                "chiped": 70,
+                "flawed": 30,
+                "normal": 0,
+                "flawless": 0,
+                "perfect": 0
+            },
+            "upgrageCost": 50,
+            "level": 1
+        },
+        {
+            "chances": {
+                "chiped": 60,
+                "flawed": 30,
+                "normal": 10,
+                "flawless": 0,
+                "perfect": 0
+            },
+            "upgrageCost": 80,
+            "level": 2
+        },
+        {
+            "chances": {
+                "chiped": 50,
+                "flawed": 30,
+                "normal": 20,
+                "flawless": 0,
+                "perfect": 0
+            },
+            "upgrageCost": 110,
+            "level": 3
+        },
+        {
+            "chances": {
+                "chiped": 40,
+                "flawed": 30,
+                "normal": 20,
+                "flawless": 10,
+                "perfect": 0
+            },
+            "upgrageCost": 140,
+            "level": 4
+        },
+        {
+            "chances": {
+                "chiped": 30,
+                "flawed": 30,
+                "normal": 30,
+                "flawless": 10,
+                "perfect": 0
+            },
+            "upgrageCost": 170,
+            "level": 5
+        },
+        {
+            "chances": {
+                "chiped": 20,
+                "flawed": 30,
+                "normal": 30,
+                "flawless": 20,
+                "perfect": 0
+            },
+            "upgrageCost": 200,
+            "level": 6
+        },
+        {
+            "chances": {
+                "chiped": 10,
+                "flawed": 30,
+                "normal": 30,
+                "flawless": 30,
+                "perfect": 0
+            },
+            "upgrageCost": 230,
+            "level": 7
+        },
+        {
+            "chances": {
+                "chiped": 0,
+                "flawed": 30,
+                "normal": 30,
+                "flawless": 30,
+                "perfect": 10
+            },
+            "upgrageCost": "undefuned",
+            "level": 8
+        }
+    ]
+}
