@@ -18,16 +18,21 @@ class RenderInterface {
      * @param {*} _height - длина
      * @param {*} _depth - глубина отрисовки (элементы с большей глубиной отрисовываются первыми)
      */
-    static drawImage(_image, _x = 0, _y = 0, _width = 0, _height = 0, _depth = 0){
+    static drawImage( _depth = 0, _image, _sx, _sy, _sWidth, _sHeight, _x, _y, _width, _height){
         this.nextFrame.push({
             type: "image",
             image:_image,
-            x: _x, y: _y,
+            sx: _sx, 
+            sy: _sy, 
+            sWidth: _sWidth, 
+            sHeight: _sHeight,
+            x: _x, 
+            y: _y,
             width: _width, height: _height,
             depth: _depth,
         });
     }
-    static fillText(_text, _x = 0, _y = 0, _maxWidth = undefined, _depth = 0){
+    static fillText(_depth = 0, _text, _x = 0, _y = 0, _maxWidth = undefined){
         this.nextFrame.push({
             type: "text",
             x: _x, y: _y,
@@ -36,7 +41,7 @@ class RenderInterface {
             depth: _depth,
         });
     }
-    static arc(_x, _y, _radius, _startAngle = 0, _endAngle = Math.PI*2, _anticlockwise, _depth = 0){
+    static arc(_depth = 0, _x, _y, _radius, _startAngle = 0, _endAngle = Math.PI*2, _anticlockwise){
         this.nextFrame.push({
             type: "arc",
             x: _x, y: _y,
@@ -55,7 +60,10 @@ class RenderInterface {
         this.nextFrame.forEach(object => {
             switch (object.type) {
                 case "image":
-                    this.context.drawImage(object.image, object.x, object.y, object.width, object.height);
+                    if (object.sx !== undefined && object.sy !== undefined && object.sWidth !== undefined && object.sHeight !== undefined) 
+                        this.context.drawImage(object.image, object.sx, object.sy, object.sWidth, object.sHeight, object.x, object.y, object.width, object.height);
+                    else
+                        this.context.drawImage(object.image, object.x, object.y, object.width, object.height);
                     break;
                 case "text":
                     this.context.fillStyle = "black";
@@ -86,10 +94,12 @@ class RenderInterface {
         window.requestAnimationFrame(() => {
             const now = performance.now();
             while (this.times.length > 0 && this.times[0] <= now - 1000) {
-            this.times.shift();
+                this.times.shift();
             }
             this.times.push(now);
         });
         this.context.fillText("Fps: " + this.times.length, 10, 80);
+        this.context.fillText("Волна: " + GameData.wale, 10, this.canvas.height - 40);
+        this.context.fillText("Состояние: " + GameData.gameState, 10, this.canvas.height - 20);
     }
 }

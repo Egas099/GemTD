@@ -16,6 +16,7 @@ class EnemyController extends MonoBehavior {
         }
     }
     Death() {
+        GameSystem.DieEnemy(this.parent);
         GameObject.Destroy(this.parent);
     }
     Start() {

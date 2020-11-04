@@ -3,13 +3,14 @@ class ClickHandler extends MonoBehavior {
         super(_parent);
     }
     static clickEvent(_clickPos) {
-        clickGlobalEvent(_clickPos);
         var objects = ClickHandler.FindObjectsOnClickPosiition(_clickPos);
         if (objects.length != 0) {
             objects = ClickHandler.SortingObjectsByDepth(objects);
-            try {
-                objects[0].findComponentByName("SpriteRender").onClick(objects[0]);
-                } catch {}
+            if (objects[0].findComponentByName("SpriteRender").onClick(objects[0])) {
+                return;
+            } else {
+                clickGlobalEvent(_clickPos);
+            }
         }
     }
     static SortingObjectsByDepth(objects) {

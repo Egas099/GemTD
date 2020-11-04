@@ -59,19 +59,29 @@ class HealthBar extends MonoBehavior {
     }
     render() {
         RenderInterface.drawImage(
+            this.depth + 1,
             this.redLine,
+            this.sx,
+            this.sy,
+            this.sWidth,
+            this.sHeight,
             this.parent.position.x - this.parent.size.x / 2,
             this.parent.position.y - this.parent.size.y / 2,
             this.parent.size.x,
             this.parent.size.y / 10,
-            this.depth + 1);
+            );
         RenderInterface.drawImage(
+            this.depth + 2,
             this.greenLine,
+            this.sx,
+            this.sy,
+            this.sWidth,
+            this.sHeight,
             this.parent.position.x - this.parent.size.x / 2,
             this.parent.position.y - this.parent.size.y / 2,
             this.parent.size.x / (this.maxHealth / this.parent.findComponentByName("EnemyController").health),
             this.parent.size.y / 10,
-            this.depth + 2);
+            );
     }
     Start() {
         this.depth = this.parent.findComponentByName("SpriteRender").depth;

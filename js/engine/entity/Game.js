@@ -66,5 +66,6 @@ class Game {
         game.timeLastFrame = Date.now();
         RenderInterface.renderNextFrame();
         MonoBehavior.Update();
+        GameSystem.Update();
     }
 }

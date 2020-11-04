@@ -29,11 +29,12 @@ class TextRender extends MonoBehavior {
         let i = 0;
         this.renderLineText.forEach(text => {
             RenderInterface.fillText(
+                this.depth + this.parent.depth,
                 text,
                 this.parent.position.x - this.size.x,
                 this.parent.position.y - this.size.y + 20 * i,
                 this.parent.size.x,
-                this.depth + this.parent.depth);
+                );
                 i++;
         });
     }

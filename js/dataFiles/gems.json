@@ -34,7 +34,7 @@
                 }
             }
         },
-        "Aquamarine": {
+        "aquamarine": {
             "quality":{
                 "chipped":{
                     "minDamage": 6,
@@ -68,173 +68,207 @@
                 }
             }
         },
-        "Opal": {
+        "opal": {
             "quality":{
                 "chipped":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 5,
+                    "maxDamage": 5,
+                    "fireRate": 800,
+                    "fireRange": 85
                 },
                 "flawed":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 10,
+                    "maxDamage": 10,
+                    "fireRate": 1000,
+                    "fireRange": 100
                 },
                 "normal":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 20,
+                    "maxDamage": 20,
+                    "fireRate": 1000,
+                    "fireRange": 114
                 },
                 "flawless":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 40,
+                    "maxDamage": 40,
+                    "fireRate": 1000,
+                    "fireRange": 128
                 },
                 "perfect":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 85,
+                    "maxDamage": 85,
+                    "fireRate": 1000,
+                    "fireRange": 143
                 }
             }
         },
-        "Ruby": {
+        "ruby": {
             "quality":{
                 "chipped":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 8,
+                    "maxDamage": 9,
+                    "fireRate": 1000,
+                    "fireRange": 114
                 },
                 "flawed":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 13,
+                    "maxDamage": 16,
+                    "fireRate": 1000,
+                    "fireRange": 114
                 },
                 "normal":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 20,
+                    "maxDamage": 25,
+                    "fireRate": 1000,
+                    "fireRange": 114
                 },
                 "flawless":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 38,
+                    "maxDamage": 45,
+                    "fireRate": 1000,
+                    "fireRange": 114
                 },
                 "perfect":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 80,
+                    "maxDamage": 104,
+                    "fireRate": 1000,
+                    "fireRange": 128
                 }
             }
         },
-        "Diamond": {
+        "diamond": {
             "quality":{
                 "chipped":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 8,
+                    "maxDamage": 12,
+                    "fireRate": 800,
+                    "fireRange": 71
                 },
                 "flawed":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 16,
+                    "maxDamage": 18,
+                    "fireRate": 1000,
+                    "fireRange": 78
                 },
                 "normal":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 30,
+                    "maxDamage": 37,
+                    "fireRate": 1000,
+                    "fireRange": 85
                 },
                 "flawless":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 58,
+                    "maxDamage": 65,
+                    "fireRate": 1000,
+                    "fireRange": 92
                 },
                 "perfect":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 140,
+                    "maxDamage": 150,
+                    "fireRate": 1000,
+                    "fireRange": 107
                 }
             }
         },
-        "Sapphire": {
+        "sapphire": {
             "quality":{
                 "chipped":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 5,
+                    "maxDamage": 8,
+                    "fireRate": 800,
+                    "fireRange": 71
                 },
                 "flawed":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 10,
+                    "maxDamage": 13,
+                    "fireRate": 1000,
+                    "fireRange": 107
                 },
                 "normal":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 16,
+                    "maxDamage": 21,
+                    "fireRate": 1000,
+                    "fireRange": 144
                 },
                 "flawless":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 30,
+                    "maxDamage": 40,
+                    "fireRate": 1000,
+                    "fireRange": 121
                 },
                 "perfect":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 60,
+                    "maxDamage": 75,
+                    "fireRate": 1000,
+                    "fireRange": 200
                 }
             }
         },
-        "Amethyst": {
+        "amethyst": {
             "quality":{
                 "chipped":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 9,
+                    "maxDamage": 13,
+                    "fireRate": 800,
+                    "fireRange": 143
                 },
                 "flawed":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 18,
+                    "maxDamage": 25,
+                    "fireRate": 1000,
+                    "fireRange": 160
                 },
                 "normal":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 30,
+                    "maxDamage": 40,
+                    "fireRate": 1000,
+                    "fireRange": 178
                 },
                 "flawless":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 60,
+                    "maxDamage": 75,
+                    "fireRate": 1000,
+                    "fireRange": 185
                 },
                 "perfect":{
-                    "minDamage": ,
-                    "maxDamage": ,
-                    "fireRate": ,
-                    "fireRange": 
+                    "minDamage": 140,
+                    "maxDamage": 150,
+                    "fireRate": 1000,
+                    "fireRange": 214
+                }
+            }
+        },
+        "topaz": {
+            "quality":{
+                "chipped":{
+                    "minDamage": 4,
+                    "maxDamage": 4,
+                    "fireRate": 800,
+                    "fireRange": 71
+                },
+                "flawed":{
+                    "minDamage": 8,
+                    "maxDamage": 8,
+                    "fireRate": 1000,
+                    "fireRange": 71
+                },
+                "normal":{
+                    "minDamage": 14,
+                    "maxDamage": 14,
+                    "fireRate": 1000,
+                    "fireRange": 71
+                },
+                "flawless":{
+                    "minDamage": 25,
+                    "maxDamage": 25,
+                    "fireRate": 1000,
+                    "fireRange": 71
+                },
+                "perfect":{
+                    "minDamage": 75,
+                    "maxDamage": 75,
+                    "fireRate": 1000,
+                    "fireRange": 85
                 }
             }
         }

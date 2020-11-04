@@ -7,13 +7,14 @@ class ArcRender extends MonoBehavior {
     }
     render() {
         RenderInterface.arc(
+            this.depth + this.parent.depth,
             this.parent.position.x,
             this.parent.position.y,
             this.radius,
             0,
             Math.PI*2.5,
             true,
-            this.depth + this.parent.depth);
+            );
     }
     onClick(_object){
         if (this.onClickFunc)

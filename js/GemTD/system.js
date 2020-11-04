@@ -1,24 +1,77 @@
 function clickGlobalEvent(_clickPos) {
-    GameData.ClearInfoList();
-    // console.log(RenderInterface.nextFrame); 
-    // console.log("Клик");
-}
-
-function objectGetInfo(_object) {
-    GameSystem.CreateGemInfoList(_object);
-}
-
-function button1Click() {
-    GameSystem.InstantHuman();
-}
-
-function destroyThisObject(_object) {
-    GameObject.Destroy(_object);
+    GameSystem.ClearInfoList();
+    if ((GameData.gameState == "build")&&(_clickPos.x <= 800)) {
+        GameSystem.Build(_clickPos);
+        GameData.buildCount--;
+        if (GameData.buildCount === 0) {
+            GameData.gameState = "defence";
+            GameData.enemyCount = 10;
+        }
+    }
 }
 class GameSystem {
-    
+    static DieEnemy(_object){
+        GameSystem.enemyes--;
+        console.log(GameSystem.enemyes);
+        // console.log("Убит", GameSystem.enemyes.length);
+        // console.log(_object);
+        // console.log("-----------------");
+    }
+    static enemyes = [];
+    static Update(){
+        let obj;
+        switch (GameData.gameState) {
+            case "defence":
+                if (GameData.enemyCount > 0) {
+                    if (Date.now() - GameData.lastSpawn > 1000) {
+                        obj = GameSystem.InstantHuman();
+                        // console.log("Создан", GameSystem.enemyes.length);
+                        // console.log(obj);
+                        // console.log("-----------------");
+                        GameSystem.enemyes++;
+                        console.log(GameSystem.enemyes);
+                        GameData.enemyCount--;
+                        GameData.lastSpawn = Date.now();
+                    } 
+                }   else if (GameSystem.enemyes.length === 0) {
+                        GameData.wale++;
+                        GameData.gameState = "view";
+                        GameData.enemyCount = 10;
+                    }
+                break;
+            case "view":
+                if (!GameData.buttonBuild) {
+                    GameData.buttonBuild = GameSystem.InstantButtonBuild();
+                }
+            default:
+                break;
+        }
+    }
+    static ActionButtonBuild(){
+        if (GameData.gameState === "view") {
+            GameData.gameState = "build";
+        }
+    }
+    static Build(_clickPos){
+        if (GameData.buildCount > 0) {
+            GameSystem.InstantRandomGem(_clickPos);
+            GameData.buildCount--;
+        } 
+        if (GameData.buildCount == 0) {
+            GameData.gameState = GameData.stateNames[1];
+            GameData.buildCount = 5;
+        }
+    }
+    static ClearInfoList(){
+        if (GameData.infoList) {
+            GameData.infoList.forEach(object => {
+                GameObject.Destroy(object);
+            });
+        }
+        GameData.infoList = [];
+    }
     static CreateGemInfoList(_object) {
-        GameData.ClearInfoList();
+        GameSystem.ClearInfoList();
         const gc = _object.findComponentByName("AttackEnemy");
         let text = [
             "Урон: " + gc.damage,
@@ -60,15 +113,29 @@ class GameSystem {
             },
         }, ));
     }
+    static InstantButtonBuild(){
+        return GameObject.Instantiate({
+            depth: 101,
+            position: createVector2(1000, 200),
+            size: createVector2(350, 50),
+            createComponentsFor(_parent) {
+                return [
+                    new SpriteRender(_parent, sprites.button, 1, GameSystem.ActionButtonBuild),
+                    new TextRender(_parent, "Строить", 2),
+                ];
+            },
+        });
+    }
     static InstantHuman() {
-        GameObject.Instantiate({
+        return GameObject.Instantiate({
+            health: 10 * GameData.wale,
             position: createVector2(10, 90),
             size: createVector2(40, 40),
             createComponentsFor(_parent) {
                 return [
                     new SpriteRender(_parent, sprites.human, 1),
-                    new MoveController(_parent, 1 + Math.random() * 3, movePath()),
-                    new EnemyController(_parent, 10, 10, 10),
+                    new MoveController(_parent, 2, movePath()),
+                    new EnemyController(_parent, this.health, this.health, 10),
                     new HealthBar(_parent),
                 ];
             },
@@ -90,25 +157,47 @@ class GameSystem {
             },
         }, );
     }
-    static InstantRandomDem(_chances) {
-        let arrChance = [];
-        let luckyQuality;
-        for (const quality in _chances)
-            arrChance.push(_chances[quality]);
-        // console.log(arrChance);
-        const chance = Math.random() * 100;
-        for (let i = 0; i <= arrChance.length; i++) {
-            if (chance <= arrChance[0]) {
-                return _chances[0];
-            }
-        }
+    static InstantRandomGem(_position) {
+        const gem = GameSystem.GetRandomGem();
+        const stat = GameData.gems.types[gem[0]].quality[gem[1]];
+        GameObject.Instantiate({
+            damage: stat.minDamage + Math.random() * (stat.maxDamage - stat.minDamage),
+            fireRate: stat.fireRate,
+            fireRange: stat.fireRange,
+            depth: 1,
+            position: _position,
+            size: createVector2(40, 50),
+            createComponentsFor(_parent) {
+                return [
+                    new SpriteRender(_parent, sritesGems[gem[0]+gem[1]], 0, GameSystem.CreateGemInfoList),
+                    new GemController(_parent),
+                    new AttackEnemy(_parent, this.damage, this.fireRange*1.5, this.fireRate),
+                ];
+            },
+        });
     }
-    static RandomChance(_chance) {
-        if (Math.random() * 100 < _chance) {
-            return true;
-        } else {
-            return false;
+    static GetRandomGem() {
+        var droppedQuality, droppedGem;
+        let arrChance = GameData.chances.levels[GameData.curentQalityLevel].chances;
+        var chance = arrChance[GameData.quality[0]];
+        var luck = Math.random() * 100;
+        for (let i = 0; i <= GameData.quality.length; i++) {
+            if (luck <= chance) {
+                droppedQuality = GameData.quality[i];
+                break;
+            }
+            chance += arrChance[GameData.quality[i+1]];
         }
+        luck = Math.random() * 100;
+        chance = 12.5;
+        for (let i = 0; i < 8; i++) {
+            if (luck <= chance) {
+                droppedGem = GameData.gemNames[i];
+                break;
+            }
+            chance += 12.5;
+        }
+        return [droppedGem, droppedQuality];
     }
     static readTextFile(file, callback) {
         var rawFile = new XMLHttpRequest();
