@@ -2,7 +2,7 @@
     "levels": [
         {
             "chances": {
-                "chiped": 100,
+                "chipped": 100,
                 "flawed": 0,
                 "normal": 0,
                 "flawless": 0,
@@ -13,7 +13,7 @@
         },
         {
             "chances": {
-                "chiped": 70,
+                "chipped": 70,
                 "flawed": 30,
                 "normal": 0,
                 "flawless": 0,
@@ -24,7 +24,7 @@
         },
         {
             "chances": {
-                "chiped": 60,
+                "chipped": 60,
                 "flawed": 30,
                 "normal": 10,
                 "flawless": 0,
@@ -35,7 +35,7 @@
         },
         {
             "chances": {
-                "chiped": 50,
+                "chipped": 50,
                 "flawed": 30,
                 "normal": 20,
                 "flawless": 0,
@@ -46,7 +46,7 @@
         },
         {
             "chances": {
-                "chiped": 40,
+                "chipped": 40,
                 "flawed": 30,
                 "normal": 20,
                 "flawless": 10,
@@ -57,7 +57,7 @@
         },
         {
             "chances": {
-                "chiped": 30,
+                "chipped": 30,
                 "flawed": 30,
                 "normal": 30,
                 "flawless": 10,
@@ -68,7 +68,7 @@
         },
         {
             "chances": {
-                "chiped": 20,
+                "chipped": 20,
                 "flawed": 30,
                 "normal": 30,
                 "flawless": 20,
@@ -79,7 +79,7 @@
         },
         {
             "chances": {
-                "chiped": 10,
+                "chipped": 10,
                 "flawed": 30,
                 "normal": 30,
                 "flawless": 30,
@@ -90,7 +90,7 @@
         },
         {
             "chances": {
-                "chiped": 0,
+                "chipped": 0,
                 "flawed": 30,
                 "normal": 30,
                 "flawless": 30,

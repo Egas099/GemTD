@@ -1,11 +1,11 @@
 {
-    "poison":   {
+    "poison": {
         "type": "periodic damage",
         "level": [
             {
                 "damage": 10,
                 "duration": 2000
             }
-        ]    
+        ]
     }
 }

@@ -1,1 +1,0 @@
-_currentDirPath = "js/dataFiles/"

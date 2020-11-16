@@ -1,7 +1,7 @@
 /* CSS */
 canvas{
+    border: 1px rgba(0, 0, 0, 0.829) groove;
     padding: 0;
-    border: 3px rgba(189, 189, 189, 0.829) groove;
     width: 800px;
     height: 500px; 
 }

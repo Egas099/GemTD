@@ -42,7 +42,7 @@ class Vector2 {
      * @param _firstVector Vector2 - Первый вектор
      * @param _secondVector Vector2 - Второй вектор
      */
-    static Sum()
+    static Sum(_firstVector, _secondVector)
     {
         return new Vector2(_firstVector.x + _secondVector.x, _firstVector.y + _secondVector.y);
     }
@@ -53,5 +53,17 @@ class Vector2 {
      */
     static Distance(_firstVector, _secondVector){
         return Math.sqrt((_secondVector.x - _firstVector.x)**2 + (_secondVector.y - _firstVector.y)**2)
+    }
+    static goFront(_vector){
+        return new Vector2(_vector.x, _vector.y + 1);
+    }
+    static goBack(_vector){
+        return new Vector2(_vector.x, _vector.y - 1);
+    }
+    static goLeft(_vector){
+        return new Vector2(_vector.x - 1, _vector.y);
+    }
+    static goRight(_vector){
+        return new Vector2(_vector.x + 1, _vector.y);
     }
 }

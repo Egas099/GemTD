@@ -37,14 +37,15 @@ class Game {
         return 17;
     }
     changeFrameTime(_time){
-        this.frameTime = _time;
         game.Stop();
+        this.frameTime = _time;
         game.Continue();
     }
     Start(){
         this.frameTime = 17;
         this.deltaTime = 1;
         this.initInstant();
+        GameSystem.Start();
         this.gameLoop = setInterval(game.Update, game.frameTime);
         this.timeLastFrame = Date.now();
     }

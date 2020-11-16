@@ -15,7 +15,9 @@ class MonoBehavior {
     /**Функция, выполняющаяся при каждой отрисовке кадра*/
     static Update() {
         game.prototypesMonoBehavior.forEach(element => {
-            element.Update();
+            if (element.parent.IsEnable()) {
+                element.Update();
+            }
         });
     }
 }
