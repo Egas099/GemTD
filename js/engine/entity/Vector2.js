@@ -9,9 +9,13 @@ class Vector2 {
      * @param _secondVector Vector2 - Второй вектор
      */
     static Equal(_firstVector, _secondVector) {
-        let firstVector = createVector2(Math.round(_firstVector.x), Math.round(_firstVector.y));
-        let secondVector = createVector2(Math.round(_secondVector.x), Math.round(_secondVector.y));
-        if ((firstVector.x == secondVector.x)&&(firstVector.y == secondVector.y))
+        if ((Math.round(_firstVector.x) == Math.round(_secondVector.x))&&
+        (Math.round(_firstVector.y) == Math.round(_secondVector.y)))
+            return true;
+        else return false;
+    }
+    static accurateEqual(_firstVector = Vector2, _secondVector = Vector2) {
+        if ((_firstVector.x == _secondVector.x) && (_firstVector.y == _secondVector.y))
             return true;
         else return false;
     }

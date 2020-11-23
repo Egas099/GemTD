@@ -25,45 +25,48 @@ class Game {
     /**
      * Создание начальных прототипов GameObject
      */
-    initInstant(){
-        for(let object in initialInstancesOfGameObjects) {
-            GameObject.Instantiate(initialInstancesOfGameObjects[object]);
+    initInstant() {
+        let instObj = Prefabs.initialInstancesOfGameObjects();
+        for (let object in instObj) {
+            GameObject.Instantiate(instObj[object]);
         }
     }
-    getGameStop(){
+    getGameStop() {
         return this.#gameStop;
     }
     get standFrameTime() {
         return 17;
     }
-    changeFrameTime(_time){
+    changeFrameTime(_time) {
         game.Stop();
         this.frameTime = _time;
         game.Continue();
     }
-    Start(){
+    Start() {
         this.frameTime = 17;
+        this.lastDeltaTime = 1;
         this.deltaTime = 1;
         this.initInstant();
         GameSystem.Start();
         this.gameLoop = setInterval(game.Update, game.frameTime);
         this.timeLastFrame = Date.now();
     }
-    Stop(){
+    Stop() {
         if (!this.#gameStop) {
             clearInterval(this.gameLoop);
             this.#gameStop = true;
         }
     }
-    Continue(){
+    Continue() {
         if (this.#gameStop) {
             game.timeLastFrame = Date.now();
             this.#gameStop = false;
             this.gameLoop = setInterval(game.Update, game.frameTime);
         }
     }
-    Update(){
-        game.deltaTime = (Date.now() - game.timeLastFrame)/game.standFrameTime;
+    Update() {
+        game.lastDeltaTime = game.deltaTime;
+        game.deltaTime = (Date.now() - game.timeLastFrame) / game.standFrameTime;
         game.timeLastFrame = Date.now();
         RenderInterface.renderNextFrame();
         MonoBehavior.Update();

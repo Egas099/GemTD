@@ -1,39 +1,18 @@
-var delay = 50;
-var lastAlgo = Date.now();
-var pathObjects = [];
-var dx = 20,
-	dy = 20;
-
-function calcPos(_clickPos) {
-	return {
-		x: Math.round(_clickPos.x / dx) * dx,
-		y: Math.round(_clickPos.y / dy) * dy
-	};
-}
 class EventSystem {
 	static addEventListeners() {
 		canvas.addEventListener('click', ClickHandler.clickEvent, false);
 		canvas.addEventListener('mousemove', ClickHandler.mouseMoveEvent, false);
 		document.addEventListener('keypress', ClickHandler.KeyEvent, false);
 	}
-	static buildClick(_clickPos) {
-		DataSystem.ClearInfoList();
-		if (GameData.game.state == "build" && _clickPos.x <= 800) {
-			if (DataSystem.checkBuildPlace(_clickPos)) {
-				let newPos = calcPos(_clickPos);
-				GameSystem.ActionBuild(newPos);
-			}
-		}
-		if (delay + lastAlgo < Date.now()) {
-			lastAlgo = Date.now();
-			if (GameData.game.state == "view" && _clickPos.x <= 800) {
-				let pos = {
-					x: Math.floor((_clickPos.x) / dx),
-					y: Math.floor((_clickPos.y) / dy)
+	static globalClick(_clickPos) {
+		DataSystem.clearInfoList();
+		if (GameData.game.state == "build")
+			if (DataSystem.checkBuildPlace(_clickPos))
+				if (GameData.build.count > 0) {
+					DataSystem.takeMapSquare(_clickPos, "build");
+					if (Algo.calcPath()) GameSystem.actionBuild(_clickPos);
+					else DataSystem.clearMapSquare(_clickPos);
 				}
-				Algo.AStar(pos, new Vector2(19, 19));
-			}
-		}
 	}
 	static buttonBuildClick() {
 		switch (GameData.game.state) {
@@ -58,7 +37,7 @@ class EventSystem {
 	}
 	static buttonKeepClick() {
 		if (GameData.game.state === "choice") {
-			if (!GameData.build.isExist()) return;
+			if (!DataSystem.existInBuildList()) return;
 			let gem;
 			let len = GameData.build.gems.length;
 			for (let i = 0; i < len; i++) {
@@ -70,44 +49,33 @@ class EventSystem {
 				}
 			}
 			GameData.build.gems = [];
-			DataSystem.ClearInfoList();
+			DataSystem.clearInfoList();
 			GameData.buttons.keep.Disable();
-			GameData.game.state = "defence";
+			GameSystem.actionNewWale();
 		}
 	}
 	static buildHover(_mousePos) {
 		if (GameData.game.state == "build" && _mousePos.x <= 800) {
-			let newPos = calcPos(_mousePos);
-			GameData.build.prompt.setPosition(newPos);
+			GameData.build.prompt.setPosition(Algo.roundPos(_mousePos));
 			GameData.build.prompt.Enable();
 		}
-		// if (delay + lastAlgo < Date.now()) {
-		// 	lastAlgo = Date.now();
-		// 	if (GameData.game.state == "view" && _mousePos.x <= 800) {
-		// 		let pos = {
-		// 			x: Math.floor((_mousePos.x - 10) / dx),
-		// 			y: Math.floor((_mousePos.y - 10) / dy)
-		// 		}
-		// 		Algo.AStar(pos, new Vector2(19, 19));
-		// 	}
-		// }
 	}
 	static buttonDestroyClick() {
 		if (GameData.choice.obj) {
 			if (GameData.choice.obj.name === "stone") {
 				GameObject.Destroy(GameData.choice.obj);
-				DataSystem.clearMapSquare(GameData.choice.obj);
-				DataSystem.ClearInfoList();
+				DataSystem.clearMapSquare(GameData.choice.obj.position);
+				DataSystem.clearInfoList();
 				GameData.buttons.destroy.Disable();
 			}
 		}
 	}
 	static stoneClick(_object) {
-		Creator.CreateInfoList(_object);
+		Creator.createInfoList(_object);
 		GameData.buttons.destroy.Enable();
 	}
 	static enemyClick(_object) {
-		Creator.CreateInfoList(_object);
+		Creator.createInfoList(_object);
 	}
 }
 class GameSystem {
@@ -121,8 +89,6 @@ class GameSystem {
 		GameData.buttons.destroy = Creator.InstantButtonDestroy();
 		GameData.buttons.destroy.Disable();
 		Creator.InstantButtonUpgradeChances();
-
-		// DataSystem.takeMapSquare(new Vector2(20, 20), "gem");
 	}
 	static Update() {
 		switch (GameData.game.state) {
@@ -131,12 +97,11 @@ class GameSystem {
 					GameData.buttons.build.Disable();
 					GameData.game.state = "choice";
 					GameData.build.prompt.Disable();
-					GameData.build.count = 5;
+					GameData.build.count = GameData.config.game.buildCountPerWave;
 				}
 				break;
 			case "choice":
-				if ((GameData.choice.obj) && (Algo.IsExist(GameData.choice
-						.obj, GameData.build.gems))) {
+				if ((GameData.choice.obj) && (Algo.thereIs(GameData.choice.obj, GameData.build.gems))) {
 					GameData.buttons.keep.Enable();
 				} else {
 					GameData.buttons.keep.Disable();
@@ -144,33 +109,48 @@ class GameSystem {
 				break;
 			case "defence":
 				if (GameData.enemies.spawnCount > 0) {
-					if (Date.now() - GameData.enemies.lastSpawn > GameData
-						.enemies.spawnDelay) {
+					if (Date.now() - GameData.enemies.lastSpawn > GameData.config.game.enemiesSpawnTimeOut) {
 						Creator.InstantHuman();
 						GameData.enemies.spawnCount--;
 						GameData.enemies.lastSpawn = Date.now();
 					}
 				} else if (GameData.enemies.left == 0) {
-					GameData.wale++;
-					GameData.game.state = "view";
-					GameData.enemies.spawnCount = GameData.enemies.perWave;
-					GameData.buttons.build.Enable();
+					GameSystem.actionEndWale();
 				}
 				break;
 			default:
 				break;
 		}
 	}
-	static ActionBuild(_position) {
-		if (GameData.build.count > 0) {
-			Creator.CreateInfoList(Creator.InstantRandomGem(_position));
-			DataSystem.takeMapSquare(_position, "gem");
-			GameData.build.count--;
-		}
+	static actionBuild(_position) {
+		let buildPos = Algo.roundPos(_position);
+		Creator.createInfoList(Creator.InstantRandomGem(buildPos));
+		DataSystem.takeMapSquare(_position, "gem");
+		GameData.build.count--;
+	}
+	static actionNewWale() {
+		GameData.enemies.groundWay = Algo.calcPath();
+		GameData.game.state = "defence";
+	}
+	static actionEndWale() {
+		GameData.wale++;
+		GameData.game.state = "view";
+		GameData.enemies.spawnCount = GameData.config.game.enemiesPerWave;
+		GameData.buttons.build.Enable();
+	}
+	static actionEnemyDie(_object) {
+		GameObject.Destroy(_object);
+		GameData.enemies.left--;
+		GameData.amountGold += Math.round(GameData.wale * 1.1);
+	}
+	static actionEnemyEscape(_object) {
+		GameData.lives -= _object.findComponentByName("EnemyController").damage;
+		GameObject.Destroy(_object);
+		GameData.enemies.left--;
 	}
 }
 class DataSystem {
-	static ClearInfoList() {
+	static clearInfoList() {
 		if (GameData.infoList) {
 			GameData.infoList.forEach((object) => {
 				GameObject.Destroy(object);
@@ -192,45 +172,57 @@ class DataSystem {
 		rawFile.send(null);
 	}
 	static checkBuildPlace(_clickPos) {
-		let pos = {
-			x: Math.floor((_clickPos.x - 10) / dx),
-			y: Math.floor((_clickPos.y - 10) / dy)
-		}
-		if ((pos.x > 38) || (pos.y > 38) || (pos.x < 0) || (pos.y < 0)) {
-			return false;
-		} else if ((!GameData.build.map[pos.x][pos.y])
-			&& (!GameData.build.map[pos.x + 1][pos.y])
-			&& (!GameData.build.map[pos.x][pos.y + 1])
-			&& (!GameData.build.map[pos.x + 1][pos.y + 1])) {
+		let pos = DataSystem.fromGlobalToMapPos(_clickPos);
+		if (GameData.build.protectedCell.find(cell => Vector2.Equal(pos, cell))) return false;
+		else if (GameData.build.protectedCell.find(cell => Vector2.Equal(Vector2.goFront(pos), cell))) return false;
+		else if (GameData.build.protectedCell.find(cell => Vector2.Equal(Vector2.goRight(pos), cell))) return false;
+		else if (GameData.build.protectedCell.find(cell => Vector2.Equal(new Vector2(pos.x + 1, pos.y + 1), cell))) return false;
+
+		if ((DataSystem.isFreePlace(pos)) &&
+			(DataSystem.isFreePlace(Vector2.goFront(pos))) &&
+			(DataSystem.isFreePlace(Vector2.goRight(pos))) &&
+			(DataSystem.isFreePlace(new Vector2(pos.x + 1, pos.y + 1)))) {
 			return true;
 		}
 		return false;
 	}
-	static clearMapSquare(_object) {
-		let pos = {
-			x: Math.floor((_object.position.x - 10) / dx),
-			y: Math.floor((_object.position.y - 10) / dy)
-		}
+	static clearMapSquare(_position) {
+		let pos = DataSystem.fromGlobalToMapPos(_position);
 		GameData.build.map[pos.x][pos.y] = undefined;
 		GameData.build.map[pos.x + 1][pos.y] = undefined;
 		GameData.build.map[pos.x][pos.y + 1] = undefined;
 		GameData.build.map[pos.x + 1][pos.y + 1] = undefined;
 	}
 	static takeMapSquare(_position, _name) {
-		let pos = {
-			x: Math.floor((_position.x - 10) / dx),
-			y: Math.floor((_position.y - 10) / dy)
-		}
+		let pos = DataSystem.fromGlobalToMapPos(_position);
 		GameData.build.map[pos.x][pos.y] = _name;
 		GameData.build.map[pos.x + 1][pos.y] = _name;
 		GameData.build.map[pos.x][pos.y + 1] = _name;
 		GameData.build.map[pos.x + 1][pos.y + 1] = _name;
 	}
-
+	static existInBuildList() {
+		return GameData.build.gems.find(gem => gem === GameData.choice.obj);
+	}
+	static fromMapToGlobalPos(_mapPos) {
+		return {
+			x: _mapPos.x * 20 + 10,
+			y: _mapPos.y * 20 + 10
+		};
+	}
+	static fromGlobalToMapPos(_globalPos) {
+		return new Vector2(Math.floor((_globalPos.x - 10) / 20), Math.floor((_globalPos.y - 10) / 20));
+	}
+	static isFreePlace(_placePos) {
+		if ((_placePos.x > 39) || (_placePos.x < 0) || (_placePos.y > 39) || (_placePos.y < 0)) {
+			return false;
+		} else if (GameData.build.map[_placePos.x][_placePos.y]) {
+			return false;
+		} else return true;
+	}
 }
 class Creator {
-	static CreateInfoList(_object) {
-		DataSystem.ClearInfoList();
+	static createInfoList(_object) {
+		DataSystem.clearInfoList();
 		let text;
 		GameData.choice.obj = _object;
 		switch (_object.name) {
@@ -245,7 +237,7 @@ class Creator {
 					depth: _object.depth,
 					radius: AE.range,
 					position: _object.position,
-					size: createVector2(0, 0),
+					size: new Vector2(0, 0),
 					createComponentsFor(_parent) {
 						return [new ArcRender(_parent, this.radius, 5)];
 					},
@@ -271,7 +263,7 @@ class Creator {
 			GameData.infoList.push(GameObject.Instantiate({
 				depth: _object.depth - 1,
 				position: new Vector2(_object.position.x, _object.position.y),
-				size: createVector2(60, 60),
+				size: new Vector2(60, 60),
 				createComponentsFor(_parent) {
 					return [new SpriteRender(_parent, sprites.selectionOutline, 0)];
 				},
@@ -280,8 +272,8 @@ class Creator {
 		GameData.infoList.push(GameObject.Instantiate({
 			depth: 101,
 			text: text,
-			position: createVector2(1000, 500),
-			size: createVector2(350, 200),
+			position: new Vector2(1000, 500),
+			size: new Vector2(350, 200),
 			createComponentsFor(_parent) {
 				return [
 					new TextRender(_parent, this.text, 11),
@@ -294,8 +286,8 @@ class Creator {
 	static InstantButtonUpgradeChances() {
 		return GameObject.Instantiate({
 			depth: 101,
-			position: createVector2(1000, 351),
-			size: createVector2(350, 50),
+			position: new Vector2(1000, 351),
+			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.button, 0,
@@ -310,8 +302,8 @@ class Creator {
 		return GameObject.Instantiate({
 			depth: 101,
 			name: "ButtonBuild",
-			position: createVector2(1000, 300),
-			size: createVector2(350, 50),
+			position: new Vector2(1000, 300),
+			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.button, 0,
@@ -325,8 +317,8 @@ class Creator {
 	static InstantButtonImproveQality() {
 		return GameObject.Instantiate({
 			depth: 101,
-			position: createVector2(1000, 700),
-			size: createVector2(350, 50),
+			position: new Vector2(1000, 700),
+			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.button,
@@ -339,8 +331,8 @@ class Creator {
 	static InstantButtonCombine() {
 		return GameObject.Instantiate({
 			depth: 101,
-			position: createVector2(1000, 755),
-			size: createVector2(350, 50),
+			position: new Vector2(1000, 755),
+			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.button,
@@ -353,8 +345,8 @@ class Creator {
 	static InstantButtonKeep() {
 		return GameObject.Instantiate({
 			depth: 101,
-			position: createVector2(1000, 645),
-			size: createVector2(350, 50),
+			position: new Vector2(1000, 645),
+			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.button, 1,
@@ -367,21 +359,21 @@ class Creator {
 	static InstantHuman() {
 		GameData.enemies.left++;
 		return GameObject.Instantiate({
+			health: Math.round(10 + 10 * (Math.floor(GameData.wale * 1.9) - 1) ) ,
 			depth: 10,
 			name: "enemy",
-			speed: 1 * (GameData.wale / 10 + 1),
-			health: 10 * GameData.wale,
-			position: createVector2(10, 90),
-			size: createVector2(40, 40),
+			position: new Vector2(10, 90),
+			size: new Vector2(40, 40),
 			createComponentsFor(_parent) {
 				return [
-					new EnemyController(_parent, this.health, this.health, 10, this.speed),
-					new SpriteRender(_parent, sprites.human, 1, EventSystem.enemyClick),
-					new MoveController(_parent, 1, GameData.enemies.movePath(), (obj) => {
-						GameData.lives--;
-						GameObject.Destroy(obj);
-						GameData.DieEnemy();
+					new EnemyController(_parent, {
+						health: this.health,
+						maxHealth: this.health,
+						damage: 1 + Math.round(GameData.wale / 10),
+						speed: (0.9 + (GameData.wale / 11)) * Math.ceil(GameData.wale / 10),
 					}),
+					new SpriteRender(_parent, sprites.human, 0, EventSystem.enemyClick),
+					new MoveController(_parent, 1, GameData.enemies.groundWay, GameSystem.actionEnemyEscape),
 					new HealthBar(_parent),
 				];
 			},
@@ -393,7 +385,7 @@ class Creator {
 			damage: _damage,
 			name: "shell",
 			position: _position,
-			size: createVector2(20, 20),
+			size: new Vector2(20, 20),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.gemShell, 100),
@@ -404,7 +396,7 @@ class Creator {
 		});
 	}
 	static InstantRandomGem(_position) {
-		const gemType = Algo.GetRandomGem();
+		const gemType = Algo.getRandomGem();
 		const stat = GameData.gems.info.types[gemType[0]].quality[gemType[1]];
 		const gem = GameObject.Instantiate({
 			name: "gem",
@@ -412,19 +404,13 @@ class Creator {
 			fireRate: stat.fireRate,
 			fireRange: stat.fireRange,
 			depth: 10,
-			position: {
-				x: _position.x,
-				y: _position.y
-			},
-			size: createVector2(40, 40),
+			position: _position,
+			size: new Vector2(40, 40),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sritesGems[gemType[0] + gemType[1]], 0,
-						Creator.CreateInfoList),
+					new SpriteRender(_parent, sritesGems[gemType[0] + gemType[1]], 0, Creator.createInfoList),
 					new GemController(_parent),
-					new AttackEnemy(_parent, this.damage,
-						this.fireRange * 1.5, this.fireRate
-					),
+					new AttackEnemy(_parent, this.damage, this.fireRange * 1.5, this.fireRate),
 				];
 			},
 		})
@@ -439,7 +425,7 @@ class Creator {
 				x: _position.x,
 				y: _position.y
 			},
-			size: createVector2(40, 40),
+			size: new Vector2(40, 40),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.stone, 0, EventSystem.stoneClick),
@@ -455,7 +441,7 @@ class Creator {
 				x: 0,
 				y: 0
 			},
-			size: createVector2(40, 40),
+			size: new Vector2(40, 40),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.stone, 0),
@@ -467,8 +453,8 @@ class Creator {
 		return GameObject.Instantiate({
 			depth: 101,
 			name: "ButtonDestroy",
-			position: createVector2(1000, 645),
-			size: createVector2(350, 50),
+			position: new Vector2(1000, 645),
+			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.button, 0,
@@ -479,28 +465,40 @@ class Creator {
 		});
 	}
 	static InstantSqvare(_position, _color = "stone") {
+
 		return GameObject.Instantiate({
+			sprite: (_color) => {
+				let sprite;
+				switch (_color) {
+					case "green":
+						sprite = sprites.greenPixel;
+					case "red":
+						sprite = sprites.redPixel;
+					default:
+						sprite = sprites.stone;
+						break;
+				}
+				return sprite;
+			},
 			name: "sq",
 			depth: (_color === "red") ? 99 : 100,
 			position: {
 				x: _position.x,
 				y: _position.y
 			},
-			size: createVector2(20, 20),
+			size: new Vector2(20, 20),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent,
-						(_color === "green")? sprites.greenPixel :((_color === "red") ? sprites.redPixel : sprites.stone) , 0),
+					new SpriteRender(_parent, this.sprite())
 				];
 			},
 		})
 	}
 }
 class Algo {
-	static GetRandomGem() {
+	static getRandomGem() {
 		var droppedQuality, droppedGem;
-		let arrChance = GameData.gems.chances.levels[GameData.gems
-			.curentQalityLevel].chances;
+		let arrChance = GameData.gems.chances.levels[GameData.gems.curentQalityLevel].chances;
 		var chance = arrChance[GameData.gems.quality[0]];
 		var luck = Math.random() * 100;
 		for (let i = 0; i <= GameData.gems.quality.length; i++) {
@@ -510,27 +508,31 @@ class Algo {
 			}
 			chance += arrChance[GameData.gems.quality[i + 1]];
 		}
-		droppedGem = GameData.gems.names[Math.floor(Math.random() * GameData
-			.gems.names.length)];
+		droppedGem = GameData.gems.names[Math.floor(Math.random() * GameData.gems.names.length)];
 		return [droppedGem, droppedQuality];
 	}
-	static IsExist(_object, _objects) {
-		for (const key in _objects) {
-			if (_object == _objects[key]) {
-				return true;
-			}
-		}
-		return false;
+	static thereIs(_object, _objects) {
+		if (_objects.find(obj => obj == _object)) return true;
+		else return false;
+	}
+	static roundPos(_position) {
+		return {
+			x: Math.round(_position.x / 20) * 20,
+			y: Math.round(_position.y / 20) * 20
+		};
 	}
 	static AStar(_startPos, _targetPos) {
+		let returnPath = [];
 		let checkedPaths = [];
 		let paths = [];
 		let predel = 0;
 		class Node {
-			constructor(_parent, _position) {
+			constructor(_parent, _position, _tD = _parent.tD + .6) {
 				this.parent = _parent;
 				this.position = _position;
-				this.rD = Vector2.Distance(_position, _targetPos); //remaining distance
+				this.tD = _tD; // travel distance
+				this.rD = Vector2.Distance(_position, _targetPos); // remaining distance
+				this.c = this.rD + this.tD; // travel + remaining distance
 			}
 		}
 
@@ -550,69 +552,90 @@ class Algo {
 
 		function findVay(parentNode) {
 			let curPos, newNode;
-			pathObjects.push(Creator.InstantSqvare(calcPos(parentNode.position), "green"));
-			if (GameData.build.mapGet(curPos = Vector2.goFront(parentNode.position)))
-				if (!existInPath(newNode = new Node(parentNode, curPos))) {
-					pathObjects.push(Creator.InstantSqvare(calcPos(newNode.position), "red"));
+			if (DataSystem.isFreePlace(curPos = Vector2.goFront(parentNode.position)))
+				if (!existInPath(newNode = new Node(parentNode, curPos)))
 					paths.push(newNode);
-				}
-			if (GameData.build.mapGet(curPos = Vector2.goBack(parentNode.position)))
-				if (!existInPath(newNode = new Node(parentNode, curPos))) {
-					pathObjects.push(Creator.InstantSqvare(calcPos(newNode.position), "red"));
-					paths.push(new Node(parentNode, curPos));
-				}
-			if (GameData.build.mapGet(curPos = Vector2.goLeft(parentNode.position)))
-				if (!existInPath(newNode = new Node(parentNode, curPos))) {
-					pathObjects.push(Creator.InstantSqvare(calcPos(newNode.position), "red"));
-					paths.push(new Node(parentNode, curPos));
-				}
-			if (GameData.build.mapGet(curPos = Vector2.goRight(parentNode.position)))
-				if (!existInPath(newNode = new Node(parentNode, curPos))) {
-					pathObjects.push(Creator.InstantSqvare(calcPos(newNode.position), "red"));
-					paths.push(new Node(parentNode, curPos));
-				}
+			if (DataSystem.isFreePlace(curPos = Vector2.goBack(parentNode.position)))
+				if (!existInPath(newNode = new Node(parentNode, curPos)))
+					paths.push(newNode);
+			if (DataSystem.isFreePlace(curPos = Vector2.goLeft(parentNode.position)))
+				if (!existInPath(newNode = new Node(parentNode, curPos)))
+					paths.push(newNode);
+			if (DataSystem.isFreePlace(curPos = Vector2.goRight(parentNode.position)))
+				if (!existInPath(newNode = new Node(parentNode, curPos)))
+					paths.push(newNode);
 
-			paths.sort((a, b) => (a.rD < b.rD) ? 1 : -1);
+			paths.sort((a, b) => (a.c !== b.c) ? ((a.c < b.c) ? 1 : -1) : Math.round(Math.random()));
+
+			if (!paths[paths.length - 1])
+				return false;
 			if (paths[paths.length - 1].rD === 0) {
-				pathObjects.push(Creator.InstantSqvare(calcPos(paths[paths.length - 1].position)));
-				return;
+				return true;
 			} else {
 				checkedPaths.push(newNode = paths.pop());
-				if (predel < 1599) {
+				if (predel < 1600) {
 					predel++;
-					findVay(newNode);
+					return findVay(newNode);
 				} else {
 					console.log("Предел количества обходимых вершин");
 				}
 			}
 		}
 
-		function calcPos(_pos = new Vector2(39, 39)) {
-			return {
-				x: _pos.x * 20 + 10,
-				y: _pos.y * 20 + 10,
-			}
-		}
-
 		function algo() {
-			// console.clear();
-			for (let i = 0; i < pathObjects.length; i++) {
-				GameObject.Destroy(pathObjects[i]);
-			}
-			let node;
-			// console.log(_startPos);
-			node = new Node(undefined, _startPos);
-			if (node.rD === 0) {
-				return;
-			}
+			if (Vector2.Equal(_startPos, _targetPos)) return [];
+			let node = new Node(undefined, _startPos, 0);
 			checkedPaths.push(node);
-			findVay(node);
-			// console.log("Пройдено путей: ", checkedPaths.length, checkedPaths);
-			// console.log("Непроверенные пути: ", paths.length, paths);
-			let ePath = [];
-			let rd = paths[paths.length - 1].rD;
-			let p = paths[paths.length - 1].parent;
+
+			if (findVay(node)) {
+				let finishPoint = paths.pop();
+				returnPath.push(DataSystem.fromMapToGlobalPos(finishPoint.position));
+				let nextNode = finishPoint.parent;
+
+				while (nextNode !== undefined) {
+					returnPath.push(DataSystem.fromMapToGlobalPos(nextNode.position));
+					nextNode = nextNode.parent;
+				}
+				return returnPath.reverse();
+			} else {
+				return false;
+			}
 		}
-		algo();
+		return algo();
+	}
+	static calcPath() {
+		let path = [];
+		let curPath = [];
+		for (let i = 1; i < GameData.build.protectedCell.length; i++) {
+			curPath = Algo.AStar(GameData.build.protectedCell[i - 1], GameData.build.protectedCell[i]);
+			if (curPath) {
+				path = path.concat(curPath);
+			} else {
+				return false;
+			}
+		}
+		// path = path.concat(Algo.AStar(new Vector2(0, 4), new Vector2(10, 6)));
+		// path.splice(1,path.length - 2);
+		let change;
+		while (true) {
+			change = false;
+			for (let i = 1; i < path.length - 1; i++) {
+				if (path[i - 1].x == path[i].x && path[i].x == path[i + 1].x) {
+					// console.log(`Удаляем ${i}`);
+					path.splice(i, 1);
+					change = true;
+					break;
+				} else if (path[i - 1].y == path[i].y && path[i].y == path[i + 1].y) {
+					// console.log(`Удаляем ${i}`);
+					path.splice(i, 1);
+					change = true;
+					break;
+				}
+			}
+			if (change) continue;
+			else break;
+		}
+		// console.log(path);
+		return path;
 	}
 }

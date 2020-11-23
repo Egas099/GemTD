@@ -46,7 +46,7 @@ class ClickHandler {
 		if (objects.length != 0) {
 			objects = ClickHandler.SortingObjectsByDepth(objects);
 			if (!objects[0].findComponentByName("SpriteRender").onClick(objects[0])) {
-				EventSystem.buildClick(clickPos);
+				EventSystem.globalClick(clickPos);
 			}
 		}
 	}

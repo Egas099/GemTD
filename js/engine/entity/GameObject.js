@@ -26,10 +26,7 @@ class GameObject {
 	 */
 	setPosition(newPosition = null, addPosition = null) {
 		if (newPosition) this.position = newPosition;
-		else {
-			this.position.x += addPosition.x;
-			this.position.y += addPosition.y;
-		}
+		else this.position = new Vector2(this.position.x + addPosition.x, this.position.y + addPosition.y);
 	}
 	/**
 	 * Добавление нового компонента в GameObject.
@@ -85,19 +82,10 @@ class GameObject {
 		return undefined;
 	}
 	static IsExist(_object) {
-		let i = 0;
-		let exist = false;
-		if (_object === undefined) return false;
-		for (const object in game.prototypesGameObject) {
-			if (_object == game.prototypesGameObject[object]) return true;
-		}
+		if (game.prototypesGameObject.find(obj => obj === _object)) return true;
+		else return false;
 	}
 	static Find(_object) {
-		for (const object in Game.prototypesGameObject) {
-			if (Game.prototypesGameObject[object] === _object) {
-				return Game.prototypesGameObject[object];
-			}
-		}
-		return undefined;
+		return game.prototypesGameObject.find(obj => obj === _object);
 	}
 }

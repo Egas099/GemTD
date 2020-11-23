@@ -1,12 +1,18 @@
 class EnemyController extends MonoBehavior {
-    constructor(_parent, _health = 0, _maxHealth, _damage = 0, _speed = 0) {
+    constructor(_parent, _stat = {
+        health: 0,
+        maxHealth: 0,
+        damage: 0,
+        speed: 0,
+    }) {
         super(_parent);
-        this.parent.speed = _speed;
-        this.health = _health;
-        this.maxHealth = _maxHealth;
-        this.damage = _damage;
-        this.speed = _speed;
+        this.parent.speed = _stat.speed;
+        this.health = _stat.health;
+        this.maxHealth = _stat.maxHealth;
+        this.damage = _stat.damage;
+        this.speed = _stat.speed;
         this.className = "EnemyController";
+        this.viewIncrement = this.health;
     }
     takeDamage(_damage) {
         if (_damage > 0) {
@@ -18,9 +24,12 @@ class EnemyController extends MonoBehavior {
         }
     }
     Death() {
-        GameData.DieEnemy(this.parent);
-        GameObject.Destroy(this.parent);
+        GameSystem.actionEnemyDie(this.parent);
     }
     Start() {}
-    Update() {}
+    Update() {
+        if (this.viewIncrement != this.health) {
+            this.viewIncrement += (this.health - this.viewIncrement) / 10;
+        }
+    }
 }

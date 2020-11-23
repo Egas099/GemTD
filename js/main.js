@@ -11,6 +11,3 @@ function stop() {
     game.Stop()
   }
 }
-function changeFrameTime() {
-  game.changeFrameTime(Math.round(1000 / frameTime.value))
-}

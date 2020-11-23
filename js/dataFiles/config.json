@@ -1,11 +1,21 @@
 {
-    "data": {
-        "enemiesPerWave": 5,
-        "buildCountPerWave": 50,
-        "startAmountGold": 10
+    "config": {
+        "system": {
+            "hoverTimeOut": 50,
+            "clickTimeOut": 20
+        },
+        "game": {
+            "enemiesPerWave": 10,
+            "enemiesSpawnTimeOut": 1000,
+            "buildCountPerWave": 5,
+            "startAmountGold": 10
+        }
     },
+    "data": {},
     "map": {
-        "protectedCell": [
+        "cellWidth": 20,
+        "cellHeight": 20,
+        "pointCell": [
             {
                 "x": 0,
                 "y": 4
