@@ -4,4 +4,4 @@ include(_currentDirPath + "MoveController.js");
 include(_currentDirPath + "GemController.js");
 include(_currentDirPath + "AttackEnemy.js");
 include(_currentDirPath + "ShellController.js");
-include(_currentDirPath + "otherComponents.js");
+include(_currentDirPath + "HealthBar.js");

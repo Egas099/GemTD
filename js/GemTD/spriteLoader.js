@@ -24,7 +24,7 @@ function loadSpriteSheet(_spriteSheet) {
 	return sprites;
 }
 var sritesGems = {
-	path: spritesPath + "heroes/gems.bmp",
+	path: spritesPath + "heroes/gems.png",
 	width: 40,
 	height: 50,
 	rows: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz", ],
@@ -43,9 +43,10 @@ var spritesPaths = {
 	tile: spritesPath + "tile.png",
 	windowBack: spritesPath + "UI/windowBack.bmp",
 	buttleBackground: spritesPath + "buttleBackground.bmp",
+	randomGem: spritesPath + "heroes/randomGem.bmp",
 	selectionOutline: spritesPath + "selectionOutline.png",
-	stone: spritesPath + "heroes/randomGem.bmp",
 	selectionOutlineBlack: spritesPath + "squareBlack.png",
+	stone: spritesPath + "heroes/stone.png",
 }
 
 function loadSprites() {

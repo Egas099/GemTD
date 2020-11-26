@@ -1,5 +1,4 @@
 class Game {
-    #gameStop = false;
     constructor() {
         /**Массив прототипов класса MonoBehavior*/
         this.prototypesMonoBehavior = [];
@@ -7,6 +6,7 @@ class Game {
         this.prototypesGameObject = [];
         /**Массив прототипов класса GUIObject*/
         this.prototypesGUIObject = [];
+        this.gameStop = false;
     }
     /**
      * Добавление нового прототипа MonoBehavior
@@ -31,9 +31,6 @@ class Game {
             GameObject.Instantiate(instObj[object]);
         }
     }
-    getGameStop() {
-        return this.#gameStop;
-    }
     get standFrameTime() {
         return 17;
     }
@@ -43,8 +40,8 @@ class Game {
         game.Continue();
     }
     Start() {
+        this.gameStop = false;
         this.frameTime = 17;
-        this.lastDeltaTime = 1;
         this.deltaTime = 1;
         this.initInstant();
         GameSystem.Start();
@@ -52,24 +49,20 @@ class Game {
         this.timeLastFrame = Date.now();
     }
     Stop() {
-        if (!this.#gameStop) {
-            clearInterval(this.gameLoop);
-            this.#gameStop = true;
-        }
+        this.gameStop = true;
     }
     Continue() {
-        if (this.#gameStop) {
-            game.timeLastFrame = Date.now();
-            this.#gameStop = false;
-            this.gameLoop = setInterval(game.Update, game.frameTime);
+        if (this.gameStop) {
+            this.gameStop = false;
         }
     }
     Update() {
-        game.lastDeltaTime = game.deltaTime;
         game.deltaTime = (Date.now() - game.timeLastFrame) / game.standFrameTime;
         game.timeLastFrame = Date.now();
-        RenderInterface.renderNextFrame();
-        MonoBehavior.Update();
-        GameSystem.Update();
+        if (!game.gameStop) {
+            RenderInterface.renderNextFrame();
+            MonoBehavior.Update();
+            GameSystem.Update();
+        }
     }
 }

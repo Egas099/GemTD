@@ -8,7 +8,7 @@
             "enemiesPerWave": 10,
             "enemiesSpawnTimeOut": 1000,
             "buildCountPerWave": 5,
-            "startAmountGold": 10
+            "startAmountGold": 1000
         }
     },
     "data": {},
@@ -49,5 +49,12 @@
                 "y": 34
             }
         ]
+    },
+    "targetsTypes": {
+        "all": [
+            "ground", "fly"
+        ],
+        "ground": ["ground"],
+        "fly": ["fly"]
     }
 }

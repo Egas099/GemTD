@@ -1,6 +1,7 @@
 {
     "types": {
         "emerald": {
+            "targetType": "all",
             "quality":{
                 "chipped":{
                     "minDamage": 4,
@@ -35,6 +36,7 @@
             }
         },
         "aquamarine": {
+            "targetType": "all",
             "quality":{
                 "chipped":{
                     "minDamage": 6,
@@ -69,6 +71,7 @@
             }
         },
         "opal": {
+            "targetType": "all",
             "quality":{
                 "chipped":{
                     "minDamage": 5,
@@ -103,6 +106,7 @@
             }
         },
         "ruby": {
+            "targetType": "all",
             "quality":{
                 "chipped":{
                     "minDamage": 8,
@@ -137,6 +141,7 @@
             }
         },
         "diamond": {
+            "targetType": "ground",
             "quality":{
                 "chipped":{
                     "minDamage": 8,
@@ -171,6 +176,7 @@
             }
         },
         "sapphire": {
+            "targetType": "all",
             "quality":{
                 "chipped":{
                     "minDamage": 5,
@@ -205,6 +211,7 @@
             }
         },
         "amethyst": {
+            "targetType": "fly",
             "quality":{
                 "chipped":{
                     "minDamage": 9,
@@ -239,6 +246,7 @@
             }
         },
         "topaz": {
+            "targetType": "all",
             "quality":{
                 "chipped":{
                     "minDamage": 4,

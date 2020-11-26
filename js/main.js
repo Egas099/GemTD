@@ -5,7 +5,7 @@ window.onload = function initialisation() {
   game.Start()
 }
 function stop() {
-  if (game.getGameStop()) {
+  if (game.gameStop) {
     game.Continue()
   } else {
     game.Stop()

@@ -50,6 +50,7 @@ class EventSystem {
 			}
 			GameData.build.gems = [];
 			DataSystem.clearInfoList();
+			DataSystem.clearBuiltPrompt();
 			GameData.buttons.keep.Disable();
 			GameSystem.actionNewWale();
 		}
@@ -123,10 +124,12 @@ class GameSystem {
 		}
 	}
 	static actionBuild(_position) {
+		let gem;
 		let buildPos = Algo.roundPos(_position);
-		Creator.createInfoList(Creator.InstantRandomGem(buildPos));
+		Creator.createInfoList(gem = Creator.InstantRandomGem(buildPos));
 		DataSystem.takeMapSquare(_position, "gem");
 		GameData.build.count--;
+		Creator.InstantBuiltPrompt(gem);
 	}
 	static actionNewWale() {
 		GameData.enemies.groundWay = Algo.calcPath();
@@ -144,7 +147,7 @@ class GameSystem {
 		GameData.amountGold += Math.round(GameData.wale * 1.1);
 	}
 	static actionEnemyEscape(_object) {
-		GameData.lives -= _object.findComponentByName("EnemyController").damage;
+		GameData.lives -= _object.damage;
 		GameObject.Destroy(_object);
 		GameData.enemies.left--;
 	}
@@ -160,6 +163,14 @@ class DataSystem {
 		GameData.infoList = [];
 		GameData.buttons.destroy.Disable();
 	}
+	static clearBuiltPrompt() {
+		if (GameData.build.gemsPrompts) {
+			GameData.build.gemsPrompts.forEach((object) => {
+				GameObject.Destroy(object);
+			});
+		}
+		GameData.build.gemsPrompts = [];
+	}
 	static readTextFile(file, callback) {
 		var rawFile = new XMLHttpRequest();
 		rawFile.overrideMimeType("application/json");
@@ -173,10 +184,10 @@ class DataSystem {
 	}
 	static checkBuildPlace(_clickPos) {
 		let pos = DataSystem.fromGlobalToMapPos(_clickPos);
-		if (GameData.build.protectedCell.find(cell => Vector2.Equal(pos, cell))) return false;
-		else if (GameData.build.protectedCell.find(cell => Vector2.Equal(Vector2.goFront(pos), cell))) return false;
-		else if (GameData.build.protectedCell.find(cell => Vector2.Equal(Vector2.goRight(pos), cell))) return false;
-		else if (GameData.build.protectedCell.find(cell => Vector2.Equal(new Vector2(pos.x + 1, pos.y + 1), cell))) return false;
+		if (GameData.build.protectedCells.find(cell => Vector2.Equal(pos, cell))) return false;
+		else if (GameData.build.protectedCells.find(cell => Vector2.Equal(Vector2.goFront(pos), cell))) return false;
+		else if (GameData.build.protectedCells.find(cell => Vector2.Equal(Vector2.goRight(pos), cell))) return false;
+		else if (GameData.build.protectedCells.find(cell => Vector2.Equal(new Vector2(pos.x + 1, pos.y + 1), cell))) return false;
 
 		if ((DataSystem.isFreePlace(pos)) &&
 			(DataSystem.isFreePlace(Vector2.goFront(pos))) &&
@@ -227,15 +238,17 @@ class Creator {
 		GameData.choice.obj = _object;
 		switch (_object.name) {
 			case "gem":
-				const AE = _object.findComponentByName("AttackEnemy");
 				text = [
-					"Урон: " + AE.damage,
-					"Скорострельность: " + AE.fireRate,
-					"Растояние: " + AE.range,
+					"Драгоценный камень",
+					(_object.damageMin !== _object.damageMax) ?
+					"Урон: " + _object.damageMin + "-" + _object.damageMax :
+					"Урон: " + _object.damageMin,
+					"Скорострельность: " + _object.fireRate,
+					"Растояние: " + _object.range,
 				];
 				GameData.infoList.push(GameObject.Instantiate({
 					depth: _object.depth,
-					radius: AE.range,
+					radius: _object.range,
 					position: _object.position,
 					size: new Vector2(0, 0),
 					createComponentsFor(_parent) {
@@ -247,12 +260,12 @@ class Creator {
 				text = ["Камень"];
 				break;
 			case "enemy":
-				const EC = _object.findComponentByName("EnemyController");
 				text = () => {
 					return [
-						"Здоровье: " + EC.health,
-						"Скорость: " + EC.speed,
-						"Урон: " + EC.damage,
+						"Враг",
+						"Здоровье: " + _object.health,
+						"Скорость: " + _object.speed,
+						"Урон: " + _object.damage,
 					]
 				};
 				break;
@@ -262,8 +275,8 @@ class Creator {
 		if (_object.name === "gem" || _object.name === "stone") {
 			GameData.infoList.push(GameObject.Instantiate({
 				depth: _object.depth - 1,
-				position: new Vector2(_object.position.x, _object.position.y),
-				size: new Vector2(60, 60),
+				position: new Vector2(_object.position.x, _object.position.y + 6),
+				size: new Vector2(50, 50),
 				createComponentsFor(_parent) {
 					return [new SpriteRender(_parent, sprites.selectionOutline, 0)];
 				},
@@ -314,16 +327,18 @@ class Creator {
 			},
 		});
 	}
-	static InstantButtonImproveQality() {
+	static InstantButtonRebuild() {
 		return GameObject.Instantiate({
 			depth: 101,
-			position: new Vector2(1000, 700),
+			name: "ButtonRebuild",
+			position: new Vector2(1000, 300),
 			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.button,
-						1),
-					new TextRender(_parent, "Улучшить", 2),
+					new SpriteRender(_parent, sprites.button, 0,
+						EventSystem.buttonBuildClick,
+						EventSystem.btnHover),
+					new TextRender(_parent, "Перестройка", 2),
 				];
 			},
 		});
@@ -335,8 +350,7 @@ class Creator {
 			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.button,
-						1),
+					new SpriteRender(_parent, sprites.button, 1),
 					new TextRender(_parent, "Комбинировать", 2),
 				];
 			},
@@ -349,8 +363,7 @@ class Creator {
 			size: new Vector2(350, 50),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.button, 1,
-						EventSystem.buttonKeepClick),
+					new SpriteRender(_parent, sprites.button, 1, EventSystem.buttonKeepClick),
 					new TextRender(_parent, "Оставить", 2),
 				];
 			},
@@ -359,18 +372,20 @@ class Creator {
 	static InstantHuman() {
 		GameData.enemies.left++;
 		return GameObject.Instantiate({
-			health: Math.round(10 + 10 * (Math.floor(GameData.wale * 1.9) - 1) ) ,
-			depth: 10,
+			stat: GameData.enemies.info.human,
+			health: Math.round(GameData.enemies.info.human.health + 10 * (Math.floor(GameData.wale * 1.9) - 1)),
 			name: "enemy",
+			depth: 10,
 			position: new Vector2(10, 90),
 			size: new Vector2(40, 40),
 			createComponentsFor(_parent) {
 				return [
 					new EnemyController(_parent, {
 						health: this.health,
-						maxHealth: this.health,
-						damage: 1 + Math.round(GameData.wale / 10),
-						speed: (0.9 + (GameData.wale / 11)) * Math.ceil(GameData.wale / 10),
+						healthMax: this.health,
+						damage: this.stat.damage + Math.round(GameData.wale / 10),
+						speed: (this.stat.speed + (GameData.wale / 11)) * Math.ceil(GameData.wale / 10),
+						type: this.stat.type,
 					}),
 					new SpriteRender(_parent, sprites.human, 0, EventSystem.enemyClick),
 					new MoveController(_parent, 1, GameData.enemies.groundWay, GameSystem.actionEnemyEscape),
@@ -400,17 +415,22 @@ class Creator {
 		const stat = GameData.gems.info.types[gemType[0]].quality[gemType[1]];
 		const gem = GameObject.Instantiate({
 			name: "gem",
-			damage: Math.round(stat.minDamage + Math.random() * (stat.maxDamage - stat.minDamage)),
-			fireRate: stat.fireRate,
-			fireRange: stat.fireRange,
 			depth: 10,
-			position: _position,
-			size: new Vector2(40, 40),
+			position: new Vector2(_position.x, _position.y - 5),
+			size: new Vector2(40, 50),
+			stat: stat,
+			targetType: GameData.gems.info.types[gemType[0]].targetType,
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sritesGems[gemType[0] + gemType[1]], 0, Creator.createInfoList),
 					new GemController(_parent),
-					new AttackEnemy(_parent, this.damage, this.fireRange * 1.5, this.fireRate),
+					new AttackEnemy(_parent, {
+						damageMin: this.stat.minDamage,
+						damageMax: this.stat.maxDamage,
+						range: this.stat.fireRange * 1.5,
+						fireRate: this.stat.fireRate,
+						targetType: this.targetType,
+					}),
 				];
 			},
 		})
@@ -425,7 +445,7 @@ class Creator {
 				x: _position.x,
 				y: _position.y
 			},
-			size: new Vector2(40, 40),
+			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
 					new SpriteRender(_parent, sprites.stone, 0, EventSystem.stoneClick),
@@ -436,7 +456,7 @@ class Creator {
 	static InstantPrompt() {
 		return GameObject.Instantiate({
 			name: "Prompt",
-			depth: 10,
+			depth: 1,
 			position: {
 				x: 0,
 				y: 0
@@ -444,10 +464,22 @@ class Creator {
 			size: new Vector2(40, 40),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.stone, 0),
+					new SpriteRender(_parent, sprites.randomGem, 0),
 				];
 			},
 		})
+	}
+	static InstantBuiltPrompt(_object) {
+		let prompt;
+		GameData.build.gemsPrompts.push(prompt = GameObject.Instantiate({
+			depth: _object.depth - 1.1,
+			position: new Vector2(_object.position.x, _object.position.y + 6),
+			size: new Vector2(50, 50),
+			createComponentsFor(_parent) {
+				return [new SpriteRender(_parent, sprites.selectionOutlineBlack, 0)];
+			},
+		}));
+		return prompt;
 	}
 	static InstantButtonDestroy() {
 		return GameObject.Instantiate({
@@ -463,36 +495,6 @@ class Creator {
 				];
 			},
 		});
-	}
-	static InstantSqvare(_position, _color = "stone") {
-
-		return GameObject.Instantiate({
-			sprite: (_color) => {
-				let sprite;
-				switch (_color) {
-					case "green":
-						sprite = sprites.greenPixel;
-					case "red":
-						sprite = sprites.redPixel;
-					default:
-						sprite = sprites.stone;
-						break;
-				}
-				return sprite;
-			},
-			name: "sq",
-			depth: (_color === "red") ? 99 : 100,
-			position: {
-				x: _position.x,
-				y: _position.y
-			},
-			size: new Vector2(20, 20),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, this.sprite())
-				];
-			},
-		})
 	}
 }
 class Algo {
@@ -606,36 +608,29 @@ class Algo {
 	static calcPath() {
 		let path = [];
 		let curPath = [];
-		for (let i = 1; i < GameData.build.protectedCell.length; i++) {
-			curPath = Algo.AStar(GameData.build.protectedCell[i - 1], GameData.build.protectedCell[i]);
+		for (let i = 1; i < GameData.enemies.MovePoint.length; i++) {
+			curPath = Algo.AStar(GameData.enemies.MovePoint[i - 1], GameData.enemies.MovePoint[i]);
 			if (curPath) {
 				path = path.concat(curPath);
 			} else {
 				return false;
 			}
 		}
-		// path = path.concat(Algo.AStar(new Vector2(0, 4), new Vector2(10, 6)));
-		// path.splice(1,path.length - 2);
 		let change;
-		while (true) {
+		do {
 			change = false;
 			for (let i = 1; i < path.length - 1; i++) {
 				if (path[i - 1].x == path[i].x && path[i].x == path[i + 1].x) {
-					// console.log(`Удаляем ${i}`);
 					path.splice(i, 1);
 					change = true;
 					break;
 				} else if (path[i - 1].y == path[i].y && path[i].y == path[i + 1].y) {
-					// console.log(`Удаляем ${i}`);
 					path.splice(i, 1);
 					change = true;
 					break;
 				}
 			}
-			if (change) continue;
-			else break;
-		}
-		// console.log(path);
+		} while (change);
 		return path;
 	}
 }
