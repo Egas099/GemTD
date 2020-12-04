@@ -99,4 +99,19 @@ class RenderInterface {
 		this.context.fillText("Состояние: " + GameData.game.state, 10, canvas.height - 40);
 		this.context.fillText("Волна: " + GameData.wale, 10, canvas.height - 20);
 	}
+	static Start() {
+		canvas.getContext('2d').globalAlpha = 0;
+		setTimeout(RenderInterface.changeGlobalAlpha, 17)
+	}
+	static Update(){
+		this.renderNextFrame();
+	}
+	static changeGlobalAlpha() {
+		canvas.getContext('2d').globalAlpha += 0.01
+		if (canvas.getContext('2d').globalAlpha < 1) {
+			setTimeout(RenderInterface.changeGlobalAlpha, 17)
+		} else if (canvas.getContext('2d').globalAlpha > 1) {
+			canvas.getContext('2d').globalAlpha = 1;
+		}
+	}
 }

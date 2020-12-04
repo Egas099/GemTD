@@ -1,8 +1,18 @@
-class EventSystem {
-	static addEventListeners() {
-		canvas.addEventListener('click', ClickHandler.clickEvent, false);
-		canvas.addEventListener('mousemove', ClickHandler.mouseMoveEvent, false);
-		document.addEventListener('keypress', ClickHandler.KeyEvent, false);
+class Events {
+	static buttonClick = {
+		buttonBuildClick() {
+			switch (GameData.game.state) {
+				case "view":
+					GameData.game.state = "build";
+					break;
+				case "build":
+					GameData.build.prompt.Disable();
+					GameData.game.state = "view";
+					break;
+				default:
+					break;
+			}
+		}
 	}
 	static globalClick(_clickPos) {
 		DataSystem.clearInfoList();
@@ -39,21 +49,41 @@ class EventSystem {
 		if (GameData.game.state === "choice") {
 			if (!DataSystem.existInBuildList()) return;
 			let gem;
-			let len = GameData.build.gems.length;
-			for (let i = 0; i < len; i++) {
-				gem = GameData.build.gems.pop();
+			GameData.build.gems.forEach(gem => {
 				if (gem !== GameData.choice.obj) {
 					Creator.InstantStone(gem.position);
 					DataSystem.takeMapSquare(gem.position, "stone");
 					GameObject.Destroy(gem);
 				}
-			}
+			});
 			GameData.build.gems = [];
 			DataSystem.clearInfoList();
-			DataSystem.clearBuiltPrompt();
+			DataSystem.clearGemsPrompt();
+			GameData.buttons.rebuild.Disable();
 			GameData.buttons.keep.Disable();
 			GameSystem.actionNewWale();
 		}
+	}
+	static buttonRebuildClick() {
+		if (GameData.game.state === "choice") {
+			let gem;
+			GameData.amountGold -= GameData.config.game.rebuilCost;
+			GameData.build.gems.forEach(gem => {
+				DataSystem.clearMapSquare(gem.position);
+				GameObject.Destroy(gem);
+
+			});
+			GameData.build.gems = [];
+			DataSystem.clearInfoList();
+			DataSystem.clearGemsPrompt();
+			GameData.buttons.rebuild.Disable();
+			GameData.buttons.keep.Disable();
+			GameData.game.state = "build";
+			GameData.buttons.build.Enable();
+		}
+	}
+	static buttonCombineClick() {
+		console.log("хи"); //////////////
 	}
 	static buildHover(_mousePos) {
 		if (GameData.game.state == "build" && _mousePos.x <= 800) {
@@ -81,15 +111,17 @@ class EventSystem {
 }
 class GameSystem {
 	static Start() {
-		EventSystem.addEventListeners();
-		GameData.buttons.build = Creator.InstantButtonBuild();
-		GameData.buttons.keep = Creator.InstantButtonKeep();
+		GameData.buttons.build = GameObject.Find("ButtonBuild");
+		GameData.buttons.keep = GameObject.Find("ButtonKeep");
 		GameData.buttons.keep.Disable();
-		GameData.build.prompt = Creator.InstantPrompt();
+		GameData.build.prompt = GameObject.Find("BuildPrompt");
 		GameData.build.prompt.Disable();
-		GameData.buttons.destroy = Creator.InstantButtonDestroy();
+		GameData.buttons.destroy = GameObject.Find("ButtonDestroy");
 		GameData.buttons.destroy.Disable();
-		Creator.InstantButtonUpgradeChances();
+		GameData.buttons.rebuild = GameObject.Find("ButtonRebuild");
+		GameData.buttons.rebuild.Disable();
+		GameData.buttons.combine = GameObject.Find("ButtonCombine");
+		GameData.buttons.combine.Disable();
 	}
 	static Update() {
 		switch (GameData.game.state) {
@@ -99,6 +131,8 @@ class GameSystem {
 					GameData.game.state = "choice";
 					GameData.build.prompt.Disable();
 					GameData.build.count = GameData.config.game.buildCountPerWave;
+					if (GameData.config.game.rebuilCost <= GameData.amountGold)
+						GameData.buttons.rebuild.Enable();
 				}
 				break;
 			case "choice":
@@ -129,7 +163,7 @@ class GameSystem {
 		Creator.createInfoList(gem = Creator.InstantRandomGem(buildPos));
 		DataSystem.takeMapSquare(_position, "gem");
 		GameData.build.count--;
-		Creator.InstantBuiltPrompt(gem);
+		Creator.InstantGemPrompt(gem);
 	}
 	static actionNewWale() {
 		GameData.enemies.groundWay = Algo.calcPath();
@@ -163,7 +197,7 @@ class DataSystem {
 		GameData.infoList = [];
 		GameData.buttons.destroy.Disable();
 	}
-	static clearBuiltPrompt() {
+	static clearGemsPrompt() {
 		if (GameData.build.gemsPrompts) {
 			GameData.build.gemsPrompts.forEach((object) => {
 				GameObject.Destroy(object);
@@ -240,6 +274,7 @@ class Creator {
 			case "gem":
 				text = [
 					"Драгоценный камень",
+					"",
 					(_object.damageMin !== _object.damageMax) ?
 					"Урон: " + _object.damageMin + "-" + _object.damageMax :
 					"Урон: " + _object.damageMin,
@@ -263,6 +298,7 @@ class Creator {
 				text = () => {
 					return [
 						"Враг",
+						"",
 						"Здоровье: " + _object.health,
 						"Скорость: " + _object.speed,
 						"Урон: " + _object.damage,
@@ -296,79 +332,6 @@ class Creator {
 		}));
 		return true;
 	}
-	static InstantButtonUpgradeChances() {
-		return GameObject.Instantiate({
-			depth: 101,
-			position: new Vector2(1000, 351),
-			size: new Vector2(350, 50),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.button, 0,
-						EventSystem.buttonUpgradeChancesClick),
-					new TextRender(_parent, "Улучшить шансы",
-						2),
-				];
-			},
-		});
-	}
-	static InstantButtonBuild() {
-		return GameObject.Instantiate({
-			depth: 101,
-			name: "ButtonBuild",
-			position: new Vector2(1000, 300),
-			size: new Vector2(350, 50),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.button, 0,
-						EventSystem.buttonBuildClick,
-						EventSystem.btnHover),
-					new TextRender(_parent, "Строить", 2),
-				];
-			},
-		});
-	}
-	static InstantButtonRebuild() {
-		return GameObject.Instantiate({
-			depth: 101,
-			name: "ButtonRebuild",
-			position: new Vector2(1000, 300),
-			size: new Vector2(350, 50),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.button, 0,
-						EventSystem.buttonBuildClick,
-						EventSystem.btnHover),
-					new TextRender(_parent, "Перестройка", 2),
-				];
-			},
-		});
-	}
-	static InstantButtonCombine() {
-		return GameObject.Instantiate({
-			depth: 101,
-			position: new Vector2(1000, 755),
-			size: new Vector2(350, 50),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.button, 1),
-					new TextRender(_parent, "Комбинировать", 2),
-				];
-			},
-		});
-	}
-	static InstantButtonKeep() {
-		return GameObject.Instantiate({
-			depth: 101,
-			position: new Vector2(1000, 645),
-			size: new Vector2(350, 50),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.button, 1, EventSystem.buttonKeepClick),
-					new TextRender(_parent, "Оставить", 2),
-				];
-			},
-		});
-	}
 	static InstantHuman() {
 		GameData.enemies.left++;
 		return GameObject.Instantiate({
@@ -387,7 +350,7 @@ class Creator {
 						speed: (this.stat.speed + (GameData.wale / 11)) * Math.ceil(GameData.wale / 10),
 						type: this.stat.type,
 					}),
-					new SpriteRender(_parent, sprites.human, 0, EventSystem.enemyClick),
+					new SpriteRender(_parent, sprites.human, 0, Events.enemyClick),
 					new MoveController(_parent, 1, GameData.enemies.groundWay, GameSystem.actionEnemyEscape),
 					new HealthBar(_parent),
 				];
@@ -448,28 +411,12 @@ class Creator {
 			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.stone, 0, EventSystem.stoneClick),
+					new SpriteRender(_parent, sprites.stone, 0, Events.stoneClick),
 				];
 			},
 		})
 	}
-	static InstantPrompt() {
-		return GameObject.Instantiate({
-			name: "Prompt",
-			depth: 1,
-			position: {
-				x: 0,
-				y: 0
-			},
-			size: new Vector2(40, 40),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.randomGem, 0),
-				];
-			},
-		})
-	}
-	static InstantBuiltPrompt(_object) {
+	static InstantGemPrompt(_object) {
 		let prompt;
 		GameData.build.gemsPrompts.push(prompt = GameObject.Instantiate({
 			depth: _object.depth - 1.1,
@@ -480,21 +427,6 @@ class Creator {
 			},
 		}));
 		return prompt;
-	}
-	static InstantButtonDestroy() {
-		return GameObject.Instantiate({
-			depth: 101,
-			name: "ButtonDestroy",
-			position: new Vector2(1000, 645),
-			size: new Vector2(350, 50),
-			createComponentsFor(_parent) {
-				return [
-					new SpriteRender(_parent, sprites.button, 0,
-						EventSystem.buttonDestroyClick),
-					new TextRender(_parent, "Разрушить", 2),
-				];
-			},
-		});
 	}
 }
 class Algo {

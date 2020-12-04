@@ -44,7 +44,9 @@ class Game {
         this.frameTime = 17;
         this.deltaTime = 1;
         this.initInstant();
+        RenderInterface.Start();
         GameSystem.Start();
+        EventSystem.Start();
         this.gameLoop = setInterval(game.Update, game.frameTime);
         this.timeLastFrame = Date.now();
     }
@@ -60,7 +62,7 @@ class Game {
         game.deltaTime = (Date.now() - game.timeLastFrame) / game.standFrameTime;
         game.timeLastFrame = Date.now();
         if (!game.gameStop) {
-            RenderInterface.renderNextFrame();
+            RenderInterface.Update();
             MonoBehavior.Update();
             GameSystem.Update();
         }

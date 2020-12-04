@@ -1,13 +1,21 @@
 // JavaScript
-window = document.defaultView
+loading();
+function loading() {
+  console.log("load");
+  load.onload = () => {
+    canvas.getContext("2d").drawImage(load, 0, 0, canvas.width, canvas.height);
+  }
+}
 window.onload = function initialisation() {
-  game = new Game()
-  game.Start()
+  setTimeout(() => {
+    game = new Game()
+    game.Start()
+  }, 0)
 }
 function stop() {
   if (game.gameStop) {
     game.Continue()
-  } else {
+  } else { 
     game.Stop()
   }
 }

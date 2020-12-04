@@ -5,6 +5,7 @@
             "clickTimeOut": 20
         },
         "game": {
+            "rebuilCost": 10,
             "enemiesPerWave": 10,
             "enemiesSpawnTimeOut": 1000,
             "buildCountPerWave": 5,

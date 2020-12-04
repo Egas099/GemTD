@@ -66,6 +66,10 @@ class GameObject {
 		});
 		return obj;
 	}
+	/**
+	 * Удаление объекта из глобального массива объектов
+	 * @param {GameObject} _object - удаляемый объект
+	 */
 	static Destroy(_object) {
 		for (let component in _object.components) {
 			for (var mono in game.prototypesMonoBehavior) {
@@ -81,11 +85,19 @@ class GameObject {
 		}
 		return undefined;
 	}
+	/**
+	 * Проверка присутствия объекта в глобальном массиве объектов
+	 * @param {GameObject} _object
+	 */
 	static IsExist(_object) {
 		if (game.prototypesGameObject.find(obj => obj === _object)) return true;
 		else return false;
 	}
-	static Find(_object) {
-		return game.prototypesGameObject.find(obj => obj === _object);
+	/**
+	 * Поиск объекта по имени
+	 * @param {String} _name - имя объекта
+	 */
+	static Find(_name){
+		return game.prototypesGameObject.find(obj => obj.name === _name);
 	}
 }

@@ -4,4 +4,5 @@ include(_currentDirPath + "MonoBehavior.js");
 include(_currentDirPath + "Game.js");
 include(_currentDirPath + "Vector2.js");
 include(_currentDirPath + "RenderInterface.js");
+include(_currentDirPath + "EventSystem.js");
 include(_currentDirPath + "otherEntity.js");

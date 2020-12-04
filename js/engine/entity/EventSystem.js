@@ -1,13 +1,14 @@
-class ClickHandler {
+class EventSystem {
 	static SortingObjectsByDepth(objects) {
-		objects.sort((a, b) => a.depth !== b.depth ? (a.depth < b.depth ? 1 : -1) : (a.position
-			.y < b.position.y ? 1 : -1));
+		objects.sort((a, b) => a.depth !== b.depth ?
+			(a.depth < b.depth ? 1 : -1) :
+			(a.position.y < b.position.y ? 1 : -1));
 		return objects;
 	}
 	static FindObjectsOnPosition(_clickPos) {
 		var objects = [];
 		game.prototypesGameObject.forEach(object => {
-			if ((object.IsEnable()) && ClickHandler.IsInclude(_clickPos, object) && (
+			if ((object.IsEnable()) && EventSystem.IsInclude(_clickPos, object) && (
 					object.findComponentByName("SpriteRender"))) {
 				objects.push(object);
 			}
@@ -31,22 +32,22 @@ class ClickHandler {
 			return;
 		}
 		GameData.mouse.lastMove = Date.now();
-		var mousePos = ClickHandler.calcMousePosition(_event);
-		var objects = ClickHandler.FindObjectsOnPosition(mousePos);
+		var mousePos = EventSystem.calcMousePosition(_event);
+		var objects = EventSystem.FindObjectsOnPosition(mousePos);
 		if (objects.length != 0) {
-			objects = ClickHandler.SortingObjectsByDepth(objects);
+			objects = EventSystem.SortingObjectsByDepth(objects);
 			if (!objects[0].findComponentByName("SpriteRender").onHover(objects[0])) {
-				EventSystem.buildHover(mousePos);
+				Events.buildHover(mousePos);
 			}
 		}
 	}
 	static clickEvent(_event) {
-		let clickPos = ClickHandler.calcMousePosition(_event);
-		var objects = ClickHandler.FindObjectsOnPosition(clickPos);
+		let clickPos = EventSystem.calcMousePosition(_event);
+		var objects = EventSystem.FindObjectsOnPosition(clickPos);
 		if (objects.length != 0) {
-			objects = ClickHandler.SortingObjectsByDepth(objects);
+			objects = EventSystem.SortingObjectsByDepth(objects);
 			if (!objects[0].findComponentByName("SpriteRender").onClick(objects[0])) {
-				EventSystem.globalClick(clickPos);
+				Events.globalClick(clickPos);
 			}
 		}
 	}
@@ -57,16 +58,24 @@ class ClickHandler {
 		}
 		switch (keyCode) {
 			case "B":
-				EventSystem.buttonBuildClick();
+				Events.buttonBuildClick();
 				break;
 			case "D":
-				EventSystem.buttonDestroyClick();
+				Events.buttonDestroyClick();
+				break;
+			case "R":
+				Events.buttonRebuildClick();
 				break;
 			case "Space":
-				EventSystem.buttonKeepClick();
+				Events.buttonKeepClick();
 				break;
 			default:
 				break;
 		}
+	}
+	static Start() {
+		canvas.addEventListener('click', EventSystem.clickEvent, false);
+		canvas.addEventListener('mousemove', EventSystem.mouseMoveEvent, false);
+		document.addEventListener('keypress', EventSystem.KeyEvent, false);
 	}
 }

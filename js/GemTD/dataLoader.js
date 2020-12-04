@@ -105,7 +105,7 @@ class Prefabs {
 					return [new SpriteRender(_parent, sprites.backInterface)];
 				},
 			},
-			goldLabel: {
+			GoldLabel: {
 				depth: 101,
 				position: new Vector2(1030, 20),
 				size: new Vector2(350, 50),
@@ -115,7 +115,7 @@ class Prefabs {
 					}, 2)];
 				},
 			},
-			livesLabel: {
+			LivesLabel: {
 				depth: 101,
 				position: new Vector2(1200, 20),
 				size: new Vector2(350, 50),
@@ -125,7 +125,97 @@ class Prefabs {
 					}, 2)];
 				},
 			},
+			ButtonBuild: {
+				name: "ButtonBuild",
+				depth: 101,
+				position: new Vector2(1000, 300),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 0,
+							Events.buttonBuildClick),
+						new TextRender(_parent, "Строить", 2),
+					];
+				},
+			},
+			BbuttonKeep: {
+				name: "ButtonKeep",
+				depth: 101,
+				position: new Vector2(1000, 645),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 1, Events.buttonKeepClick),
+						new TextRender(_parent, "Оставить", 2),
+					];
+				},
+			},
+			BuildPrompt: {
+				name: "BuildPrompt",
+				depth: 1,
+				position: vector2(0, 0),
+				size: new Vector2(40, 40),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.randomGem, 0),
+					];
+				},
+			},
+			ButtonRebuild: {
+				name: "ButtonRebuild",
+				depth: 101,
+				position: new Vector2(1000, 300),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 0, Events.buttonRebuildClick),
+						new TextRender(_parent, "Перестройка", 2),
+					];
+				},
+			},
+			ButtonCombine: {
+				name: "ButtonCombine",
+				depth: 101,
+				position: new Vector2(1000, 755),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 1, Events.buttonCombineClick),
+						new TextRender(_parent, "Комбинировать", 2),
+					];
+				},
+			},
+			ButtonUpgradeChances: {
+				name: "ButtonUpgradeChances",
+				depth: 101,
+				position: new Vector2(1000, 351),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 0,
+							Events.buttonUpgradeChancesClick),
+						new TextRender(_parent, "Улучшить шансы",
+							2),
+					];
+				},
+			},
+			ButtonDestroy: {
+				name: "ButtonDestroy",
+				depth: 101,
+				position: new Vector2(1000, 645),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 0,
+							Events.buttonDestroyClick),
+						new TextRender(_parent, "Разрушить", 2),
+					];
+				},
+			}
 		};
+	}
+	static other = {
+
 	}
 }
 
