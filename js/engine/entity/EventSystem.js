@@ -37,7 +37,7 @@ class EventSystem {
 		if (objects.length != 0) {
 			objects = EventSystem.SortingObjectsByDepth(objects);
 			if (!objects[0].findComponentByName("SpriteRender").onHover(objects[0])) {
-				Events.buildHover(mousePos);
+				Events.hover.global(mousePos);
 			}
 		}
 	}
@@ -47,7 +47,7 @@ class EventSystem {
 		if (objects.length != 0) {
 			objects = EventSystem.SortingObjectsByDepth(objects);
 			if (!objects[0].findComponentByName("SpriteRender").onClick(objects[0])) {
-				Events.globalClick(clickPos);
+				Events.click.global(clickPos);
 			}
 		}
 	}
@@ -58,16 +58,16 @@ class EventSystem {
 		}
 		switch (keyCode) {
 			case "B":
-				Events.buttonBuildClick();
+				Events.click.button.build();
 				break;
 			case "D":
-				Events.buttonDestroyClick();
+				Events.click.button.destroy();
 				break;
 			case "R":
-				Events.buttonRebuildClick();
+				Events.click.button.rebuild();
 				break;
 			case "Space":
-				Events.buttonKeepClick();
+				Events.click.button.keep();
 				break;
 			default:
 				break;

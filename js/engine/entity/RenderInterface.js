@@ -37,7 +37,7 @@ class RenderInterface {
 			depth: _depth,
 		});
 	}
-	static arc(_depth = 0, _x, _y, _radius, _startAngle = 0, _endAngle = Math.PI * 2, _anticlockwise) {
+	static arc(_depth = 0, _x, _y, _radius, _startAngle = 0, _endAngle, _anticlockwise) {
 		this.nextFrame.push({
 			type: "arc",
 			x: _x,
@@ -67,7 +67,7 @@ class RenderInterface {
 					break;
 				case "arc":
 					this.context.beginPath();
-					this.context.arc(object.x, object.y, object.radius, 0, 2 * Math.PI, object.anticlockwise);
+					this.context.arc(object.x, object.y, object.radius, object.startAngle, object.endAngle, object.anticlockwise);
 					this.context.stroke();
 					break;
 				default:
@@ -94,8 +94,6 @@ class RenderInterface {
 			this.times.push(now);
 		});
 		this.context.fillText("Fps: " + this.times.length, 10, 80);
-		this.context.fillText("enemyes: " + GameData.enemies.left, 10, canvas.height - 80);
-		this.context.fillText("EmemyCount: " + GameData.enemies.spawnCount, 10, canvas.height - 60);
 		this.context.fillText("Состояние: " + GameData.game.state, 10, canvas.height - 40);
 		this.context.fillText("Волна: " + GameData.wale, 10, canvas.height - 20);
 	}
@@ -107,10 +105,10 @@ class RenderInterface {
 		this.renderNextFrame();
 	}
 	static changeGlobalAlpha() {
-		canvas.getContext('2d').globalAlpha += 0.01
+		canvas.getContext('2d').globalAlpha += 0.05
 		if (canvas.getContext('2d').globalAlpha < 1) {
 			setTimeout(RenderInterface.changeGlobalAlpha, 17)
-		} else if (canvas.getContext('2d').globalAlpha > 1) {
+		} else {
 			canvas.getContext('2d').globalAlpha = 1;
 		}
 	}

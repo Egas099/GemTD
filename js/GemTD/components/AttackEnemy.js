@@ -37,7 +37,7 @@ class AttackEnemy extends MonoBehavior {
         }
     }
     fire() {
-        Creator.InstantShell(this.parent.position,
+        Creator.InstantShell(this.parent,
             this.target,
             Math.round(this.parent.damageMin + Math.random() * (this.parent.damageMax - this.parent.damageMin))
         );

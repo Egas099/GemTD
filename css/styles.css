@@ -1,15 +1,43 @@
 /* CSS */
+body{
+    margin: 0;
+}
+.content-wrapper{
+    min-width: 820px;
+    margin: auto;
+    width: 70%;
+    /* background-color: rgba(194, 209, 223, 0.5); */
+    height: 90vh;
+    min-height: 500px;
+    box-shadow: 0 5px 10px rgba(36, 41, 104, 0.5);
+}
+header{
+    z-index: 9999;
+    height: 10vh;
+    background-color: rgb(185, 188, 228);
+    box-shadow: 0 5px 5px rgba(36, 41, 104, 0.5);
+}
 canvas{
-    border: 1px rgba(0, 0, 0, 0.829) groove;
+    margin: 2vh;
+    border: 1px rgb(0, 0, 0) solid;
     padding: 0;
     width: 800px;
-    height: 500px; 
+    height: 500px;
+    box-shadow: 0 0 10px rgb(1, 5, 59);
 }
 input{
-    width: 100%;
+    width: 20vw;
     height: 5vh;
 }
 .centre{
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+}
+footer{
+    margin: -5vh 0;
+    height: 5vh;
+    background-color: rgb(156, 159, 180);
+    box-shadow: 0 0 5px rgba(50, 51, 58, 0.7);
 }

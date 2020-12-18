@@ -1,115 +1,138 @@
 class Events {
-	static buttonClick = {
-		buttonBuildClick() {
-			switch (GameData.game.state) {
-				case "view":
+	static click = {
+		button: {
+			build() {
+				switch (GameData.game.state) {
+					case "view":
+						GameData.game.state = "build";
+						break;
+					case "build":
+						GameData.build.prompt.Disable();
+						GameData.game.state = "view";
+						break;
+					default:
+						break;
+				}
+			},
+			upgradeChances() {
+				var updateCost = GameData.gems.chances.levels[GameData.gems.curentQalityLevel].upgrageCost;
+				if (updateCost <= GameData.amountGold) {
+					GameData.amountGold -= updateCost;
+					GameData.gems.curentQalityLevel++;
+				}
+			},
+			keep() {
+				if (GameData.game.state === "choice") {
+					if (!DS.existInBuildList()) return;
+					GameData.build.gems.forEach(gem => {
+						if (gem !== GameData.choice.obj) {
+							Creator.InstantStone(gem.position);
+							DS.takeMapSquare(gem.position, "stone");
+							GameObject.Destroy(gem);
+						}
+					});
+					GameData.build.gems = [];
+					DS.clearInfoList();
+					DS.clearGemsPrompt();
+					GameData.buttons.rebuild.Disable();
+					GameData.buttons.keep.Disable();
+					GS.action.newWale();
+				}
+			},
+			rebuild() {
+				if (GameData.game.state === "choice") {
+					let gem;
+					GameData.amountGold -= GameData.config.game.rebuilCost;
+					GameData.build.gems.forEach(gem => {
+						DS.clearMapSquare(gem.position);
+						GameObject.Destroy(gem);
+					});
+					GameData.build.gems = [];
+					DS.clearInfoList();
+					DS.clearGemsPrompt();
+					GameData.buttons.rebuild.Disable();
+					GameData.buttons.keep.Disable();
 					GameData.game.state = "build";
-					break;
-				case "build":
-					GameData.build.prompt.Disable();
-					GameData.game.state = "view";
-					break;
-				default:
-					break;
-			}
-		}
-	}
-	static globalClick(_clickPos) {
-		DataSystem.clearInfoList();
-		if (GameData.game.state == "build")
-			if (DataSystem.checkBuildPlace(_clickPos))
-				if (GameData.build.count > 0) {
-					DataSystem.takeMapSquare(_clickPos, "build");
-					if (Algo.calcPath()) GameSystem.actionBuild(_clickPos);
-					else DataSystem.clearMapSquare(_clickPos);
+					GameData.buttons.build.Enable();
 				}
-	}
-	static buttonBuildClick() {
-		switch (GameData.game.state) {
-			case "view":
-				GameData.game.state = "build";
-				break;
-			case "build":
-				GameData.build.prompt.Disable();
-				GameData.game.state = "view";
-				break;
-			default:
-				break;
-		}
-	}
-	static buttonUpgradeChancesClick() {
-		var updateCost = GameData.gems.chances.levels[GameData.gems
-			.curentQalityLevel].upgrageCost;
-		if (updateCost <= GameData.amountGold) {
-			GameData.amountGold -= updateCost;
-			GameData.gems.curentQalityLevel++;
-		}
-	}
-	static buttonKeepClick() {
-		if (GameData.game.state === "choice") {
-			if (!DataSystem.existInBuildList()) return;
-			let gem;
-			GameData.build.gems.forEach(gem => {
-				if (gem !== GameData.choice.obj) {
-					Creator.InstantStone(gem.position);
-					DataSystem.takeMapSquare(gem.position, "stone");
-					GameObject.Destroy(gem);
+			},
+			destroy() {
+				if (GameData.choice.obj) {
+					if (GameData.choice.obj.tag === "stone") {
+						GameObject.Destroy(GameData.choice.obj);
+						DS.clearMapSquare(GameData.choice.obj.position);
+						DS.clearInfoList();
+						GameData.buttons.destroy.Disable();
+					}
 				}
-			});
-			GameData.build.gems = [];
-			DataSystem.clearInfoList();
-			DataSystem.clearGemsPrompt();
-			GameData.buttons.rebuild.Disable();
-			GameData.buttons.keep.Disable();
-			GameSystem.actionNewWale();
-		}
-	}
-	static buttonRebuildClick() {
-		if (GameData.game.state === "choice") {
-			let gem;
-			GameData.amountGold -= GameData.config.game.rebuilCost;
-			GameData.build.gems.forEach(gem => {
-				DataSystem.clearMapSquare(gem.position);
-				GameObject.Destroy(gem);
+			},
+			upgrade() {
+				if (GameData.game.state === "choice") {
+					const oldGem = GameData.build.gems.splice(GameData.build.gems.indexOf(GameData.choice.obj), 1)[0];
+					const newQuality = GameData.gems.qualities[GameData.gems.qualities.indexOf(oldGem.quality) + 1];
+					const atribytes = {
+						gem: oldGem.name,
+						quality: newQuality
+					};
+					const newGem = Creator.InstantGem(vector2(oldGem.position.x, oldGem.position.y+5) , atribytes);
 
-			});
-			GameData.build.gems = [];
-			DataSystem.clearInfoList();
-			DataSystem.clearGemsPrompt();
-			GameData.buttons.rebuild.Disable();
-			GameData.buttons.keep.Disable();
-			GameData.game.state = "build";
-			GameData.buttons.build.Enable();
+					GameObject.Destroy(oldGem);
+					Creator.createInfoList(newGem);
+					// GameData.choice.obj = newGem;
+					Events.click.button.keep();
+				}
+			},
+		},
+		object: {
+			stone(_object) {
+				Creator.createInfoList(_object);
+				GameData.buttons.destroy.Enable();
+			},
+			enemy(_object) {
+				Creator.createInfoList(_object);
+			},
+			gem(_object) {
+				Creator.createInfoList(_object);
+				if (GameData.game.state === "choice") {
+					if (GameData.build.gems.find(gem => gem === _object)) {
+						const count = GameData.build.gems.filter(
+							gem => gem.name === _object.name && gem.quality === _object.quality).length;
+						if (count > 1) {
+							GameData.buttons.upgrade.Enable();
+							return;
+						}
+					}
+				}
+			},
+		},
+		global(_clickPos) {
+			DS.clearInfoList();
+			if (GameData.game.state == "build")
+				if (DS.checkBuildPlace(_clickPos))
+					if (GameData.build.count > 0) {
+						DS.takeMapSquare(_clickPos, "build");
+						if (Algo.calcPath()) GS.action.build(_clickPos);
+						else DS.clearMapSquare(_clickPos);
+					}
 		}
 	}
-	static buttonCombineClick() {
-		console.log("хи"); //////////////
-	}
-	static buildHover(_mousePos) {
-		if (GameData.game.state == "build" && _mousePos.x <= 800) {
-			GameData.build.prompt.setPosition(Algo.roundPos(_mousePos));
-			GameData.build.prompt.Enable();
-		}
-	}
-	static buttonDestroyClick() {
-		if (GameData.choice.obj) {
-			if (GameData.choice.obj.name === "stone") {
-				GameObject.Destroy(GameData.choice.obj);
-				DataSystem.clearMapSquare(GameData.choice.obj.position);
-				DataSystem.clearInfoList();
-				GameData.buttons.destroy.Disable();
+	static hover = {
+		button: {
+			chances() {
+				Creator.createInfoList({
+					tag: "chances"
+				});
+			},
+		},
+		global(_mousePos) {
+			if (GameData.game.state == "build" && _mousePos.x <= 800) {
+				GameData.build.prompt.setPosition(Algo.roundPos(_mousePos));
+				GameData.build.prompt.Enable();
 			}
 		}
-	}
-	static stoneClick(_object) {
-		Creator.createInfoList(_object);
-		GameData.buttons.destroy.Enable();
-	}
-	static enemyClick(_object) {
-		Creator.createInfoList(_object);
 	}
 }
-class GameSystem {
+const GS = GameSystem = class GameSystem {
 	static Start() {
 		GameData.buttons.build = GameObject.Find("ButtonBuild");
 		GameData.buttons.keep = GameObject.Find("ButtonKeep");
@@ -120,8 +143,8 @@ class GameSystem {
 		GameData.buttons.destroy.Disable();
 		GameData.buttons.rebuild = GameObject.Find("ButtonRebuild");
 		GameData.buttons.rebuild.Disable();
-		GameData.buttons.combine = GameObject.Find("ButtonCombine");
-		GameData.buttons.combine.Disable();
+		GameData.buttons.upgrade = GameObject.Find("ButtonUpgrade");
+		GameData.buttons.upgrade.Disable();
 	}
 	static Update() {
 		switch (GameData.game.state) {
@@ -133,6 +156,7 @@ class GameSystem {
 					GameData.build.count = GameData.config.game.buildCountPerWave;
 					if (GameData.config.game.rebuilCost <= GameData.amountGold)
 						GameData.buttons.rebuild.Enable();
+					Events.click.object.gem(GameData.choice.obj);
 				}
 				break;
 			case "choice":
@@ -150,43 +174,58 @@ class GameSystem {
 						GameData.enemies.lastSpawn = Date.now();
 					}
 				} else if (GameData.enemies.left == 0) {
-					GameSystem.actionEndWale();
+					GS.action.endWale();
 				}
 				break;
 			default:
 				break;
 		}
 	}
-	static actionBuild(_position) {
-		let gem;
-		let buildPos = Algo.roundPos(_position);
-		Creator.createInfoList(gem = Creator.InstantRandomGem(buildPos));
-		DataSystem.takeMapSquare(_position, "gem");
-		GameData.build.count--;
-		Creator.InstantGemPrompt(gem);
-	}
-	static actionNewWale() {
-		GameData.enemies.groundWay = Algo.calcPath();
-		GameData.game.state = "defence";
-	}
-	static actionEndWale() {
-		GameData.wale++;
-		GameData.game.state = "view";
-		GameData.enemies.spawnCount = GameData.config.game.enemiesPerWave;
-		GameData.buttons.build.Enable();
-	}
-	static actionEnemyDie(_object) {
-		GameObject.Destroy(_object);
-		GameData.enemies.left--;
-		GameData.amountGold += Math.round(GameData.wale * 1.1);
-	}
-	static actionEnemyEscape(_object) {
-		GameData.lives -= _object.damage;
-		GameObject.Destroy(_object);
-		GameData.enemies.left--;
+	static action = {
+		build(_position) {
+			let buildPos = Algo.roundPos(_position);
+			let gem = Creator.InstantGem(buildPos)
+			DS.takeMapSquare(_position, "gem");
+			GameData.build.count--;
+			Creator.InstantGemPrompt(gem);
+			Events.click.object.gem(gem);
+		},
+		upgradeGem() { },
+		newWale() {
+			GameData.enemies.groundWay = Algo.calcPath();
+			GameData.game.state = "defence";
+		},
+		endWale() {
+			GameData.wale++;
+			GameData.game.state = "view";
+			GameData.enemies.spawnCount = GameData.config.game.enemiesPerWave;
+			GameData.buttons.build.Enable();
+		},
+		enemyDie(_object) {
+			GameObject.Destroy(_object);
+			GameData.enemies.left--;
+			GameData.amountGold += Math.round(GameData.wale * 1.1);
+		},
+		enemyEscape(_object) {
+			GameData.lives -= _object.damage;
+			GameObject.Destroy(_object);
+			GameData.enemies.left--;
+		},
 	}
 }
-class DataSystem {
+const DS = DataSystem = class DataSystem {
+	static translate(_word) {
+		try {
+			if (GameData.localisation[_word]) {
+				return GameData.localisation[_word];
+			}
+		} catch { }
+		if (!GameData.notTranslated.find(word => word == _word)) {
+			GameData.notTranslated.push(_word);
+			console.log(`Translation error: Can't translate "${_word}"`);
+		}
+		return _word;
+	}
 	static clearInfoList() {
 		if (GameData.infoList) {
 			GameData.infoList.forEach((object) => {
@@ -196,6 +235,7 @@ class DataSystem {
 		GameData.choice.obj = undefined;
 		GameData.infoList = [];
 		GameData.buttons.destroy.Disable();
+		GameData.buttons.upgrade.Disable();
 	}
 	static clearGemsPrompt() {
 		if (GameData.build.gemsPrompts) {
@@ -217,29 +257,29 @@ class DataSystem {
 		rawFile.send(null);
 	}
 	static checkBuildPlace(_clickPos) {
-		let pos = DataSystem.fromGlobalToMapPos(_clickPos);
+		let pos = DS.fromGlobalToMapPos(_clickPos);
 		if (GameData.build.protectedCells.find(cell => Vector2.Equal(pos, cell))) return false;
 		else if (GameData.build.protectedCells.find(cell => Vector2.Equal(Vector2.goFront(pos), cell))) return false;
 		else if (GameData.build.protectedCells.find(cell => Vector2.Equal(Vector2.goRight(pos), cell))) return false;
 		else if (GameData.build.protectedCells.find(cell => Vector2.Equal(new Vector2(pos.x + 1, pos.y + 1), cell))) return false;
 
-		if ((DataSystem.isFreePlace(pos)) &&
-			(DataSystem.isFreePlace(Vector2.goFront(pos))) &&
-			(DataSystem.isFreePlace(Vector2.goRight(pos))) &&
-			(DataSystem.isFreePlace(new Vector2(pos.x + 1, pos.y + 1)))) {
+		if ((DS.isFreePlace(pos)) &&
+			(DS.isFreePlace(Vector2.goFront(pos))) &&
+			(DS.isFreePlace(Vector2.goRight(pos))) &&
+			(DS.isFreePlace(new Vector2(pos.x + 1, pos.y + 1)))) {
 			return true;
 		}
 		return false;
 	}
 	static clearMapSquare(_position) {
-		let pos = DataSystem.fromGlobalToMapPos(_position);
+		let pos = DS.fromGlobalToMapPos(_position);
 		GameData.build.map[pos.x][pos.y] = undefined;
 		GameData.build.map[pos.x + 1][pos.y] = undefined;
 		GameData.build.map[pos.x][pos.y + 1] = undefined;
 		GameData.build.map[pos.x + 1][pos.y + 1] = undefined;
 	}
 	static takeMapSquare(_position, _name) {
-		let pos = DataSystem.fromGlobalToMapPos(_position);
+		let pos = DS.fromGlobalToMapPos(_position);
 		GameData.build.map[pos.x][pos.y] = _name;
 		GameData.build.map[pos.x + 1][pos.y] = _name;
 		GameData.build.map[pos.x][pos.y + 1] = _name;
@@ -267,21 +307,22 @@ class DataSystem {
 }
 class Creator {
 	static createInfoList(_object) {
-		DataSystem.clearInfoList();
+		DS.clearInfoList();
 		let text;
 		GameData.choice.obj = _object;
-		switch (_object.name) {
+		switch (_object.tag) {
 			case "gem":
 				text = [
-					"Драгоценный камень",
+					`${upFirst(DS.translate(_object.quality))} ${DS.translate(_object.name)}`,
 					"",
 					(_object.damageMin !== _object.damageMax) ?
-					"Урон: " + _object.damageMin + "-" + _object.damageMax :
-					"Урон: " + _object.damageMin,
-					"Скорострельность: " + _object.fireRate,
-					"Растояние: " + _object.range,
+						`${upFirst(DS.translate("damage"))}: ${_object.damageMin}-${_object.damageMax}` :
+						`${upFirst(DS.translate("damage"))}: ${_object.damageMin}`,
+					`${upFirst(DS.translate("rate of fire"))}: ${_object.fireRate}`,
+					`${upFirst(DS.translate("range"))}: ${_object.range}`,
 				];
 				GameData.infoList.push(GameObject.Instantiate({
+					name: "gemRange",
 					depth: _object.depth,
 					radius: _object.range,
 					position: _object.position,
@@ -292,24 +333,39 @@ class Creator {
 				}));
 				break;
 			case "stone":
-				text = ["Камень"];
+				text = [`${upFirst(DS.translate("stone"))}`];
 				break;
 			case "enemy":
 				text = () => {
 					return [
-						"Враг",
+						`${upFirst(DS.translate("enemy"))}`,
 						"",
-						"Здоровье: " + _object.health,
-						"Скорость: " + _object.speed,
-						"Урон: " + _object.damage,
+						`${upFirst(DS.translate("health"))}: ${_object.health}`,
+						`${upFirst(DS.translate("speed"))}: ${_object.speed}`,
+						`${upFirst(DS.translate("damage"))}: ${_object.damage}`,
+					]
+				};
+				break;
+			case "chances":
+				text = () => {
+					let chances = GameData.gems.chances.levels[GameData.gems.curentQalityLevel].chances;
+					return [
+						`${upFirst(DS.translate("chances"))}`,
+						"",
+						`${chances["chipped"]}% - ${DS.translate("chipped")}`,
+						`${chances["flawed"]}% - ${DS.translate("flawed")}`,
+						`${chances["normal"]}% - ${DS.translate("normal")}`,
+						`${chances["flawless"]}% - ${DS.translate("flawless")}`,
+						`${chances["perfect"]}% - ${DS.translate("perfect")}`,
 					]
 				};
 				break;
 			default:
 				break;
 		}
-		if (_object.name === "gem" || _object.name === "stone") {
+		if (_object.tag === "gem" || _object.tag === "stone") {
 			GameData.infoList.push(GameObject.Instantiate({
+				name: "selectionOutline",
 				depth: _object.depth - 1,
 				position: new Vector2(_object.position.x, _object.position.y + 6),
 				size: new Vector2(50, 50),
@@ -319,10 +375,11 @@ class Creator {
 			}));
 		}
 		GameData.infoList.push(GameObject.Instantiate({
+			name: "infoListBack",
 			depth: 101,
 			text: text,
-			position: new Vector2(1000, 500),
-			size: new Vector2(350, 200),
+			position: new Vector2(1000, 490),
+			size: vector2(350, 200),
 			createComponentsFor(_parent) {
 				return [
 					new TextRender(_parent, this.text, 11),
@@ -337,7 +394,9 @@ class Creator {
 		return GameObject.Instantiate({
 			stat: GameData.enemies.info.human,
 			health: Math.round(GameData.enemies.info.human.health + 10 * (Math.floor(GameData.wale * 1.9) - 1)),
-			name: "enemy",
+			attributes: {
+				tag: "enemy",
+			},
 			depth: 10,
 			position: new Vector2(10, 90),
 			size: new Vector2(40, 40),
@@ -350,42 +409,58 @@ class Creator {
 						speed: (this.stat.speed + (GameData.wale / 11)) * Math.ceil(GameData.wale / 10),
 						type: this.stat.type,
 					}),
-					new SpriteRender(_parent, sprites.human, 0, Events.enemyClick),
-					new MoveController(_parent, 1, GameData.enemies.groundWay, GameSystem.actionEnemyEscape),
+					new SpriteRender(_parent, sprites.human, 0, {
+						onClick: Events.click.object.enemy,
+					}),
+					new MoveController(_parent, 1, GameData.enemies.groundWay, GS.action.enemyEscape),
 					new HealthBar(_parent),
 				];
 			},
 		});
 	}
-	static InstantShell(_position, _target, _damage) {
+	static InstantShell(_owner, _target, _damage) {
 		GameObject.Instantiate({
+			owner: _owner,
 			target: _target,
 			damage: _damage,
-			name: "shell",
-			position: _position,
+			attributes: {
+				tag: "shell",
+			},
+			position: _owner.position,
 			size: new Vector2(20, 20),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.gemShell, 100),
+					new SpriteRender(_parent, sprites.shells[this.owner.name], 100),
 					new ShellController(_parent, this.target, this.damage, 10),
 					new MoveController(_parent, 15, [this.target.position]),
 				];
 			},
 		});
 	}
-	static InstantRandomGem(_position) {
-		const gemType = Algo.getRandomGem();
-		const stat = GameData.gems.info.types[gemType[0]].quality[gemType[1]];
+	static InstantGem(_position, _character) {
+		let dropped;
+		if (_character) {
+			dropped = _character;
+		} else {
+			dropped = Algo.getRandomGem();
+		}
+		const stat = GameData.gems.info.types[dropped.gem].quality[dropped.quality];
 		const gem = GameObject.Instantiate({
-			name: "gem",
+			attributes: {
+				name: dropped.gem,
+				quality: dropped.quality,
+				tag: "gem",
+			},
 			depth: 10,
 			position: new Vector2(_position.x, _position.y - 5),
 			size: new Vector2(40, 50),
 			stat: stat,
-			targetType: GameData.gems.info.types[gemType[0]].targetType,
+			targetType: GameData.gems.info.types[dropped.gem].targetType,
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sritesGems[gemType[0] + gemType[1]], 0, Creator.createInfoList),
+					new SpriteRender(_parent, sprites.gems[dropped.gem + dropped.quality], 0, {
+						onClick: Events.click.object.gem,
+					}),
 					new GemController(_parent),
 					new AttackEnemy(_parent, {
 						damageMin: this.stat.minDamage,
@@ -402,7 +477,9 @@ class Creator {
 	}
 	static InstantStone(_position) {
 		return GameObject.Instantiate({
-			name: "stone",
+			attributes: {
+				tag: "stone",
+			},
 			depth: 10,
 			position: {
 				x: _position.x,
@@ -411,7 +488,9 @@ class Creator {
 			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.stone, 0, Events.stoneClick),
+					new SpriteRender(_parent, sprites.stones[Math.floor(Math.random() * 4)], 0, {
+						onClick: Events.click.object.stone,
+					}),
 				];
 			},
 		})
@@ -433,17 +512,20 @@ class Algo {
 	static getRandomGem() {
 		var droppedQuality, droppedGem;
 		let arrChance = GameData.gems.chances.levels[GameData.gems.curentQalityLevel].chances;
-		var chance = arrChance[GameData.gems.quality[0]];
+		var chance = arrChance[GameData.gems.qualities[0]];
 		var luck = Math.random() * 100;
-		for (let i = 0; i <= GameData.gems.quality.length; i++) {
+		for (let i = 0; i <= GameData.gems.qualities.length; i++) {
 			if (luck <= chance) {
-				droppedQuality = GameData.gems.quality[i];
+				droppedQuality = GameData.gems.qualities[i];
 				break;
 			}
-			chance += arrChance[GameData.gems.quality[i + 1]];
+			chance += arrChance[GameData.gems.qualities[i + 1]];
 		}
 		droppedGem = GameData.gems.names[Math.floor(Math.random() * GameData.gems.names.length)];
-		return [droppedGem, droppedQuality];
+		return {
+			gem: droppedGem,
+			quality: droppedQuality
+		};
 	}
 	static thereIs(_object, _objects) {
 		if (_objects.find(obj => obj == _object)) return true;
@@ -486,16 +568,16 @@ class Algo {
 
 		function findVay(parentNode) {
 			let curPos, newNode;
-			if (DataSystem.isFreePlace(curPos = Vector2.goFront(parentNode.position)))
+			if (DS.isFreePlace(curPos = Vector2.goFront(parentNode.position)))
 				if (!existInPath(newNode = new Node(parentNode, curPos)))
 					paths.push(newNode);
-			if (DataSystem.isFreePlace(curPos = Vector2.goBack(parentNode.position)))
+			if (DS.isFreePlace(curPos = Vector2.goBack(parentNode.position)))
 				if (!existInPath(newNode = new Node(parentNode, curPos)))
 					paths.push(newNode);
-			if (DataSystem.isFreePlace(curPos = Vector2.goLeft(parentNode.position)))
+			if (DS.isFreePlace(curPos = Vector2.goLeft(parentNode.position)))
 				if (!existInPath(newNode = new Node(parentNode, curPos)))
 					paths.push(newNode);
-			if (DataSystem.isFreePlace(curPos = Vector2.goRight(parentNode.position)))
+			if (DS.isFreePlace(curPos = Vector2.goRight(parentNode.position)))
 				if (!existInPath(newNode = new Node(parentNode, curPos)))
 					paths.push(newNode);
 
@@ -523,11 +605,11 @@ class Algo {
 
 			if (findVay(node)) {
 				let finishPoint = paths.pop();
-				returnPath.push(DataSystem.fromMapToGlobalPos(finishPoint.position));
+				returnPath.push(DS.fromMapToGlobalPos(finishPoint.position));
 				let nextNode = finishPoint.parent;
 
 				while (nextNode !== undefined) {
-					returnPath.push(DataSystem.fromMapToGlobalPos(nextNode.position));
+					returnPath.push(DS.fromMapToGlobalPos(nextNode.position));
 					nextNode = nextNode.parent;
 				}
 				return returnPath.reverse();

@@ -1,4 +1,4 @@
-var game;
+var game = "";
 class GameData {
 	static config;
 	static game = {
@@ -15,23 +15,21 @@ class GameData {
 		groundWay: undefined,
 		lastSpawn: Date.now(),
 		left: 0,
-		flyWay: () => {
-			return [
-				new Vector2(170, 90), //→
-				new Vector2(150, 450), //↓
-				new Vector2(650, 450), //→
-				new Vector2(650, 90), //↑
-				new Vector2(390, 90), //←
-				new Vector2(390, 690), //↓
-				new Vector2(790, 690), //→
-			];
-		},
+		flyWay: () => [
+			new Vector2(170, 90), //→
+			new Vector2(150, 450), //↓
+			new Vector2(650, 450), //→
+			new Vector2(650, 90), //↑
+			new Vector2(390, 90), //←
+			new Vector2(390, 690), //↓
+			new Vector2(790, 690), //→
+		],
 	};
 	static gems = {
 		info: {},
 		gemNames: [],
 		chances: {},
-		quality: [],
+		qualities: [],
 		curentQalityLevel: 0,
 	};
 	static build = {
@@ -53,11 +51,17 @@ class GameData {
 		lastMove: Date.now(),
 		moveDelay: 20,
 	}
+	static notTranslated = [];
 }
 for (let i = 0; i <= 39; i++)
 	GameData.build.map.push([]);
-
 DataSystem.readTextFile("js/dataFiles/config.json", function (inputData) {
+	GameData.language = inputData.config.system.language;
+	if (GameData.language != "en") {
+		DataSystem.readTextFile(`js/localization/${GameData.language}.json`, function (inputData) {
+			GameData.localisation = inputData;
+		});
+	}
 	GameData.config = inputData.config;
 
 	GameData.enemies.spawnCount = GameData.config.game.enemiesPerWave;
@@ -70,7 +74,7 @@ DataSystem.readTextFile("js/dataFiles/config.json", function (inputData) {
 DataSystem.readTextFile("js/dataFiles/chances.json", function (inputData) {
 	GameData.gems.chances = inputData;
 	for (const quality in GameData.gems.chances.levels[0].chances) {
-		GameData.gems.quality.push(quality);
+		GameData.gems.qualities.push(quality);
 	}
 });
 DataSystem.readTextFile("js/dataFiles/gems.json", function (inputData) {
@@ -88,7 +92,9 @@ class Prefabs {
 	static initialInstancesOfGameObjects = () => {
 		return {
 			BattleBackground: {
-				name: "BattleBackground",
+				attributes: {
+					name: "BattleBackground"
+				},
 				depth: 0,
 				position: new Vector2(400, 400),
 				size: new Vector2(800, 800),
@@ -97,7 +103,9 @@ class Prefabs {
 				},
 			},
 			GUIBack: {
-				name: "GUIBack",
+				attributes: {
+					name: "GUIBack"
+				},
 				depth: 100,
 				position: new Vector2(1000, 400),
 				size: new Vector2(400, 800),
@@ -111,7 +119,7 @@ class Prefabs {
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [new TextRender(_parent, () => {
-						return "Золото: " + GameData.amountGold;
+						return `${upFirst(DS.translate("gold"))}: ${GameData.amountGold}`;
 					}, 2)];
 				},
 			},
@@ -121,37 +129,63 @@ class Prefabs {
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [new TextRender(_parent, () => {
-						return "Жизни: " + GameData.lives;
+						return `${upFirst(DS.translate("lives"))}: ${GameData.lives}`;
 					}, 2)];
 				},
 			},
 			ButtonBuild: {
-				name: "ButtonBuild",
+				attributes: {
+					name: "ButtonBuild"
+				},
 				depth: 101,
 				position: new Vector2(1000, 300),
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [
-						new SpriteRender(_parent, sprites.button, 0,
-							Events.buttonBuildClick),
-						new TextRender(_parent, "Строить", 2),
+						new SpriteRender(_parent, sprites.button, 0, {
+							onClick: Events.click.button.build,
+						}),
+						new TextRender(_parent, `${upFirst(DS.translate("build"))}`, 2),
 					];
 				},
 			},
-			BbuttonKeep: {
-				name: "ButtonKeep",
+			ButtonUpgradeChances: {
+				attributes: {
+					name: "ButtonUpgradeChances"
+				},
+				depth: 101,
+				position: new Vector2(1000, 351),
+				size: new Vector2(350, 50),
+				createComponentsFor(_parent) {
+					return [
+						new SpriteRender(_parent, sprites.button, 0, {
+							onClick: Events.click.button.upgradeChances,
+							onHover: Events.hover.button.chances
+						}),
+						new TextRender(_parent, `${upFirst(DS.translate("upgrade chances"))}`, 2),
+					];
+				},
+			},
+			ButtonKeep: {
+				attributes: {
+					name: "ButtonKeep"
+				},
 				depth: 101,
 				position: new Vector2(1000, 645),
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [
-						new SpriteRender(_parent, sprites.button, 1, Events.buttonKeepClick),
-						new TextRender(_parent, "Оставить", 2),
+						new SpriteRender(_parent, sprites.button, 1, {
+							onClick: Events.click.button.keep,
+						}),
+						new TextRender(_parent, `${upFirst(DS.translate("keep"))}`, 2),
 					];
 				},
 			},
 			BuildPrompt: {
-				name: "BuildPrompt",
+				attributes: {
+					name: "BuildPrompt"
+				},
 				depth: 1,
 				position: vector2(0, 0),
 				size: new Vector2(40, 40),
@@ -162,53 +196,50 @@ class Prefabs {
 				},
 			},
 			ButtonRebuild: {
-				name: "ButtonRebuild",
+				attributes: {
+					name: "ButtonRebuild"
+				},
 				depth: 101,
 				position: new Vector2(1000, 300),
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [
-						new SpriteRender(_parent, sprites.button, 0, Events.buttonRebuildClick),
-						new TextRender(_parent, "Перестройка", 2),
+						new SpriteRender(_parent, sprites.button, 0, {
+							onClick: Events.click.button.rebuild,
+						}),
+						new TextRender(_parent, `${upFirst(DS.translate("rebuild"))}`, 2),
 					];
 				},
 			},
-			ButtonCombine: {
-				name: "ButtonCombine",
+			ButtonUpgrade: {
+				attributes: {
+					name: "ButtonUpgrade"
+				},
 				depth: 101,
 				position: new Vector2(1000, 755),
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [
-						new SpriteRender(_parent, sprites.button, 1, Events.buttonCombineClick),
-						new TextRender(_parent, "Комбинировать", 2),
-					];
-				},
-			},
-			ButtonUpgradeChances: {
-				name: "ButtonUpgradeChances",
-				depth: 101,
-				position: new Vector2(1000, 351),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 0,
-							Events.buttonUpgradeChancesClick),
-						new TextRender(_parent, "Улучшить шансы",
-							2),
+						new SpriteRender(_parent, sprites.button, 1, {
+							onClick: Events.click.button.upgrade,
+						}),
+						new TextRender(_parent, `${upFirst(DS.translate("upgrade"))}`, 2),
 					];
 				},
 			},
 			ButtonDestroy: {
-				name: "ButtonDestroy",
+				attributes: {
+					name: "ButtonDestroy"
+				},
 				depth: 101,
 				position: new Vector2(1000, 645),
 				size: new Vector2(350, 50),
 				createComponentsFor(_parent) {
 					return [
-						new SpriteRender(_parent, sprites.button, 0,
-							Events.buttonDestroyClick),
-						new TextRender(_parent, "Разрушить", 2),
+						new SpriteRender(_parent, sprites.button, 0, {
+							onClick: Events.click.button.destroy,
+						}),
+						new TextRender(_parent, `${upFirst(DS.translate("destroy"))}`, 2),
 					];
 				},
 			}

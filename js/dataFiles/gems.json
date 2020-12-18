@@ -48,7 +48,7 @@
                     "minDamage": 12,
                     "maxDamage": 15,
                     "fireRate": 500,
-                    "fireRange": 30
+                    "fireRange": 53
                 },
                 "normal":{
                     "minDamage": 24,

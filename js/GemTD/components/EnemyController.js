@@ -22,7 +22,7 @@ class EnemyController extends MonoBehavior {
         }
     }
     Death() {
-        GameSystem.actionEnemyDie(this.parent);
+        GameSystem.action.enemyDie(this.parent);
     }
     Start() {}
     Update() {}

@@ -5,13 +5,14 @@ function include(url) {
 	script.async = false;
 	script.src = url;
 	// script.async = false;
-	// document.getElementById("scripts").appendChild(script);
+	scripts.appendChild(script);
 	// script.async = false;
 	// document.body.appendChild(script);
-	document.getElementsByTagName('head')[0].appendChild(script);
+	// document.getElementsByTagName('head')[0].appendChild(script);
 	return true;
 }
 if (include(_currentDirPath + "engine/_include.js")) {
-	include(_currentDirPath + "GemTD/_include.js");
-	include(_currentDirPath + "main.js");
+	if (include(_currentDirPath + "GemTD/_include.js")) {
+		include(_currentDirPath + "main.js");
+	}
 }

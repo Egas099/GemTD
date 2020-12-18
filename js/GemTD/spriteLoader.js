@@ -3,7 +3,7 @@ var sprites = {}
 
 function loadSpriteSheet(_spriteSheet) {
 	var sprites = {
-		type: "sheet"
+		type: "spriteSheet"
 	};
 	const image = createImg(_spriteSheet.path);
 	const amountX = _spriteSheet.column.length;
@@ -23,18 +23,9 @@ function loadSpriteSheet(_spriteSheet) {
 	}
 	return sprites;
 }
-var sritesGems = {
-	path: spritesPath + "heroes/gems.png",
-	width: 40,
-	height: 50,
-	rows: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz", ],
-	column: ["chipped", "flawed", "normal", "flawless", "perfect", "greate", ],
-}
-sritesGems = loadSpriteSheet(sritesGems);
-var spritesPaths = {
+var spritesInfo = {
 	backInterface: spritesPath + "UI/backInterface.jpg",
-	button: spritesPath + "UI/rockButton.png",
-	gemShell: spritesPath + "heroes/gemShell.png",
+	button: spritesPath + "UI/button.png",
 	greenPixel: spritesPath + "UI/HealthBar/GreenPixel.bmp",
 	redPixel: spritesPath + "UI/HealthBar/RedPixel.bmp",
 	limePixel: spritesPath + "UI/HealthBar/LimePixel.bmp",
@@ -46,12 +37,41 @@ var spritesPaths = {
 	randomGem: spritesPath + "heroes/randomGem.bmp",
 	selectionOutline: spritesPath + "selectionOutline.png",
 	selectionOutlineBlack: spritesPath + "squareBlack.png",
-	stone: spritesPath + "heroes/stone.png",
+	heart: spritesPath + "UI/heart.png",
+	coin: spritesPath + "UI/coin.png",
+	shells: {
+		type: "spriteSheet",
+		path: spritesPath + "heroes/gemShells.png",
+		width: 20,
+		height: 20,
+		column: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz", ],
+		rows: [""],
+	},
+	gems: {
+		type: "spriteSheet",
+		path: spritesPath + "heroes/gems.png",
+		width: 40,
+		height: 50,
+		rows: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz", ],
+		column: ["chipped", "flawed", "normal", "flawless", "perfect", "greate", ],
+	},
+	stones: {
+		type: "spriteSheet",
+		path: spritesPath + "heroes/stones.png",
+		width: 40,
+		height: 50,
+		column: ["0", "1", "2", "3"],
+		rows: [""],
+	},
 }
 
 function loadSprites() {
-	for (const sprite in spritesPaths) {
-		sprites[sprite] = createImg(spritesPaths[sprite]);
+	for (const sprite in spritesInfo) {
+		if (typeof spritesInfo[sprite] === "string") {
+			sprites[sprite] = createImg(spritesInfo[sprite]);
+		} else if (typeof spritesInfo[sprite] === "object" && spritesInfo[sprite].type === "spriteSheet") {
+			sprites[sprite] = loadSpriteSheet(spritesInfo[sprite]);
+		}
 	}
 }
 

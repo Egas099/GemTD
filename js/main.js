@@ -1,10 +1,9 @@
 // JavaScript
 loading();
+
 function loading() {
-  console.log("load");
-  load.onload = () => {
-    canvas.getContext("2d").drawImage(load, 0, 0, canvas.width, canvas.height);
-  }
+  canvas.getContext("2d").font = "40px serif";
+  canvas.getContext("2d").fillText("Loading...", canvas.width/2 - 50, canvas.height-20);
 }
 window.onload = function initialisation() {
   setTimeout(() => {
@@ -12,10 +11,11 @@ window.onload = function initialisation() {
     game.Start()
   }, 0)
 }
+
 function stop() {
   if (game.gameStop) {
     game.Continue()
-  } else { 
+  } else {
     game.Stop()
   }
 }

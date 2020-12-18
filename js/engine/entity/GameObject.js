@@ -2,13 +2,18 @@ class GameObject {
 	#enable = true;
 	/**Массив компонентов */
 	components = {};
-	constructor(_position = new Vector2(0, 0), _size = new Vector2(0, 0), _depth = 0, _name) {
+	constructor(_position = new Vector2(0, 0), _size = new Vector2(0, 0), _depth = 0, _attributes = {
+		name: "",
+		tag: "",
+	}) {
 		game.addPrototypeOfGameObject(this);
 		this.position = _position;
 		this.size = _size;
 		this.depth = _depth
 		this.dataCreate = Date.now();
-		this.name = _name;
+		for (const key in _attributes) {
+            this[key] = _attributes[key];
+        }
 	}
 	IsEnable() {
 		return this.#enable;
@@ -56,7 +61,7 @@ class GameObject {
 	static Instantiate(_object) {
 		const position = _object.position;
 		const size = _object.size;
-		var obj = new GameObject(new Vector2(position.x, position.y), new Vector2(size.x, size.y), _object.depth, _object.name);
+		var obj = new GameObject(new Vector2(position.x, position.y), new Vector2(size.x, size.y), _object.depth,_object.attributes);
 		const comp = _object.createComponentsFor(obj);
 		comp.forEach(element => {
 			obj.addComponent(element);
@@ -97,7 +102,7 @@ class GameObject {
 	 * Поиск объекта по имени
 	 * @param {String} _name - имя объекта
 	 */
-	static Find(_name){
+	static Find(_name) {
 		return game.prototypesGameObject.find(obj => obj.name === _name);
 	}
 }
