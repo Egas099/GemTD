@@ -10,14 +10,14 @@ class AttackEnemy extends MonoBehavior {
         this.className = "AttackEnemy";
         for (const key in _stat) {
             this.parent[key] = _stat[key];
-        } 
+        }
         this.lastFire = Date.now();
         this.target = undefined;
     }
     findEnemy() {
         let distance, minDist = this.parent.range;
         game.prototypesGameObject.forEach(object => {
-            if (object.findComponentByName("EnemyController")) {
+            if (object.getComponent("EnemyController")) {
                 if (this.parent.targetType === "all" || this.parent.targetType === object.type) {
                     distance = Vector2.Distance(this.parent.position, object.position);
                     if (distance <= this.parent.range) {
@@ -42,7 +42,7 @@ class AttackEnemy extends MonoBehavior {
             Math.round(this.parent.damageMin + Math.random() * (this.parent.damageMax - this.parent.damageMin))
         );
     }
-    Start() {}
+    Start() { }
     Update() {
         if (this.target === undefined) {
             this.findEnemy();

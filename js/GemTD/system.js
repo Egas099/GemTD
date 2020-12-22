@@ -74,7 +74,7 @@ class Events {
 						gem: oldGem.name,
 						quality: newQuality
 					};
-					const newGem = Creator.InstantGem(vector2(oldGem.position.x, oldGem.position.y+5) , atribytes);
+					const newGem = Creator.InstantGem(vector2(oldGem.position.x, oldGem.position.y + 5), atribytes);
 
 					GameObject.Destroy(oldGem);
 					Creator.createInfoList(newGem);
@@ -131,6 +131,19 @@ class Events {
 			}
 		}
 	}
+	static hoverEnter = {
+		button(_object) {
+			_object.getComponent("SpriteRender").setStyle({
+				shadowBlur: 10,
+				shadowColor: "rgba(77, 85, 139, 0.7)",
+			});
+		}
+	}
+	static hoverLeave = {
+		button(_object) {
+			_object.getComponent("SpriteRender").restoreStyle();
+		}
+	}
 }
 const GS = GameSystem = class GameSystem {
 	static Start() {
@@ -147,6 +160,7 @@ const GS = GameSystem = class GameSystem {
 		GameData.buttons.upgrade.Disable();
 	}
 	static Update() {
+		// console.log(GameData.buttons.build.getComponent("SpriteRender").style.shadowBlur);
 		switch (GameData.game.state) {
 			case "build":
 				if (GameData.build.count === 0) {
@@ -190,7 +204,6 @@ const GS = GameSystem = class GameSystem {
 			Creator.InstantGemPrompt(gem);
 			Events.click.object.gem(gem);
 		},
-		upgradeGem() { },
 		newWale() {
 			GameData.enemies.groundWay = Algo.calcPath();
 			GameData.game.state = "defence";
@@ -308,11 +321,15 @@ const DS = DataSystem = class DataSystem {
 class Creator {
 	static createInfoList(_object) {
 		DS.clearInfoList();
-		let text;
+		let infoText;
 		GameData.choice.obj = _object;
 		switch (_object.tag) {
+			case "stone":
+				infoText = [`${upFirst(DS.translate("stone"))}`];
+				GameData.infoList.push(Creator.InstantSelectionOutline(_object));
+				break;
 			case "gem":
-				text = [
+				infoText = [
 					`${upFirst(DS.translate(_object.quality))} ${DS.translate(_object.name)}`,
 					"",
 					(_object.damageMin !== _object.damageMax) ?
@@ -321,22 +338,11 @@ class Creator {
 					`${upFirst(DS.translate("rate of fire"))}: ${_object.fireRate}`,
 					`${upFirst(DS.translate("range"))}: ${_object.range}`,
 				];
-				GameData.infoList.push(GameObject.Instantiate({
-					name: "gemRange",
-					depth: _object.depth,
-					radius: _object.range,
-					position: _object.position,
-					size: new Vector2(0, 0),
-					createComponentsFor(_parent) {
-						return [new ArcRender(_parent, this.radius, 5)];
-					},
-				}));
-				break;
-			case "stone":
-				text = [`${upFirst(DS.translate("stone"))}`];
+				GameData.infoList.push(Creator.InstantGemRange(_object));
+				GameData.infoList.push(Creator.InstantSelectionOutline(_object));
 				break;
 			case "enemy":
-				text = () => {
+				infoText = () => {
 					return [
 						`${upFirst(DS.translate("enemy"))}`,
 						"",
@@ -347,47 +353,62 @@ class Creator {
 				};
 				break;
 			case "chances":
-				text = () => {
+				infoText = () => {
 					let chances = GameData.gems.chances.levels[GameData.gems.curentQalityLevel].chances;
 					return [
 						`${upFirst(DS.translate("chances"))}`,
 						"",
-						`${chances["chipped"]}% - ${DS.translate("chipped")}`,
-						`${chances["flawed"]}% - ${DS.translate("flawed")}`,
-						`${chances["normal"]}% - ${DS.translate("normal")}`,
-						`${chances["flawless"]}% - ${DS.translate("flawless")}`,
-						`${chances["perfect"]}% - ${DS.translate("perfect")}`,
+						`${DS.translate("chipped")}:      ${chances["chipped"]}%`,
+						`${DS.translate("flawed")}:  ${chances["flawed"]}% `,
+						`${DS.translate("normal")}:   ${chances["normal"]}%`,
+						`${DS.translate("flawless")}:  ${chances["flawless"]}%`,
+						`${DS.translate("perfect")}:     ${chances["perfect"]}%`,
 					]
 				};
 				break;
 			default:
 				break;
 		}
-		if (_object.tag === "gem" || _object.tag === "stone") {
-			GameData.infoList.push(GameObject.Instantiate({
-				name: "selectionOutline",
-				depth: _object.depth - 1,
-				position: new Vector2(_object.position.x, _object.position.y + 6),
-				size: new Vector2(50, 50),
-				createComponentsFor(_parent) {
-					return [new SpriteRender(_parent, sprites.selectionOutline, 0)];
-				},
-			}));
-		}
-		GameData.infoList.push(GameObject.Instantiate({
+		GameData.infoList.push(Creator.InstantInfoListBack(infoText));
+		return true;
+	}
+	static InstantInfoListBack(_infoText) {
+		return GameObject.Instantiate({
 			name: "infoListBack",
 			depth: 101,
-			text: text,
-			position: new Vector2(1000, 490),
-			size: vector2(350, 200),
+			infoText: _infoText,
+			position: new Vector2(1000, 450),
+			size: vector2(350, 300),
 			createComponentsFor(_parent) {
 				return [
-					new TextRender(_parent, this.text, 11),
-					new SpriteRender(_parent, sprites.windowBack, 11),
+					new TextRender(_parent, this.infoText, 11, GD.config.style.textGlobal),
+					new SpriteRender(_parent, sprites.windowBack, 11, undefined),
 				];
 			},
-		}));
-		return true;
+		})
+	}
+	static InstantGemRange(_object) {
+		return GameObject.Instantiate({
+			name: "gemRange",
+			depth: _object.depth,
+			radius: _object.range,
+			position: _object.position,
+			size: new Vector2(0, 0),
+			createComponentsFor(_parent) {
+				return [new ArcRender(_parent, this.radius, 5)];
+			},
+		})
+	}
+	static InstantSelectionOutline(_object) {
+		return GameObject.Instantiate({
+			name: "selectionOutline",
+			depth: _object.depth - 1,
+			position: new Vector2(_object.position.x, _object.position.y + 6),
+			size: new Vector2(50, 50),
+			createComponentsFor(_parent) {
+				return [new SpriteRender(_parent, sprites.selectionOutline, 0)];
+			},
+		});
 	}
 	static InstantHuman() {
 		GameData.enemies.left++;
@@ -406,7 +427,7 @@ class Creator {
 						health: this.health,
 						healthMax: this.health,
 						damage: this.stat.damage + Math.round(GameData.wale / 10),
-						speed: (this.stat.speed + (GameData.wale / 11)) * Math.ceil(GameData.wale / 10),
+						speed: (this.stat.speed + (GameData.wale / 10)),
 						type: this.stat.type,
 					}),
 					new SpriteRender(_parent, sprites.human, 0, {

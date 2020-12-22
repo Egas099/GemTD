@@ -7,15 +7,15 @@ class ShellController extends MonoBehavior {
         this.className = "ShellController";
     }
     Start() {
-        this.parent.findComponentByName("MoveController").onEndPath = function(_object){
-            const Sc = _object.findComponentByName("ShellController");
+        this.parent.getComponent("MoveController").onEndPath = function (_object) {
+            const Sc = _object.getComponent("ShellController");
             const target = Sc.target;
             const damage = Sc.damage;
             if (GameObject.IsExist(target)) {
-                target.findComponentByName("EnemyController").takeDamage(damage);
+                target.getComponent("EnemyController").takeDamage(damage);
             }
             GameObject.Destroy(_object);
         };
     }
-    Update() {}
+    Update() { }
 }

@@ -6,9 +6,6 @@ class MonoBehavior {
     }
     static Start() {
         game.prototypesMonoBehavior.forEach(element => {
-            // if (typeof element.Start == 'function') {
-            //     console.log('Да! Функция существует!');
-            //    }
             element.Start();
         });
     }

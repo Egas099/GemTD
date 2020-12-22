@@ -1,5 +1,5 @@
 var game = "";
-class GameData {
+const GD = GameData = class GameData {
 	static config;
 	static game = {
 		state: "view",
@@ -52,6 +52,9 @@ class GameData {
 		moveDelay: 20,
 	}
 	static notTranslated = [];
+	static getWidth(_text) {
+		return canvas.getContext('2d').measureText(_text).width;
+	}
 }
 for (let i = 0; i <= 39; i++)
 	GameData.build.map.push([]);
@@ -98,88 +101,8 @@ class Prefabs {
 				depth: 0,
 				position: new Vector2(400, 400),
 				size: new Vector2(800, 800),
-				createComponentsFor(_parent) {
-					return [new SpriteRender(_parent, sprites.buttleBackground, 0)];
-				},
-			},
-			GUIBack: {
-				attributes: {
-					name: "GUIBack"
-				},
-				depth: 100,
-				position: new Vector2(1000, 400),
-				size: new Vector2(400, 800),
-				createComponentsFor(_parent) {
-					return [new SpriteRender(_parent, sprites.backInterface)];
-				},
-			},
-			GoldLabel: {
-				depth: 101,
-				position: new Vector2(1030, 20),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [new TextRender(_parent, () => {
-						return `${upFirst(DS.translate("gold"))}: ${GameData.amountGold}`;
-					}, 2)];
-				},
-			},
-			LivesLabel: {
-				depth: 101,
-				position: new Vector2(1200, 20),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [new TextRender(_parent, () => {
-						return `${upFirst(DS.translate("lives"))}: ${GameData.lives}`;
-					}, 2)];
-				},
-			},
-			ButtonBuild: {
-				attributes: {
-					name: "ButtonBuild"
-				},
-				depth: 101,
-				position: new Vector2(1000, 300),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 0, {
-							onClick: Events.click.button.build,
-						}),
-						new TextRender(_parent, `${upFirst(DS.translate("build"))}`, 2),
-					];
-				},
-			},
-			ButtonUpgradeChances: {
-				attributes: {
-					name: "ButtonUpgradeChances"
-				},
-				depth: 101,
-				position: new Vector2(1000, 351),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 0, {
-							onClick: Events.click.button.upgradeChances,
-							onHover: Events.hover.button.chances
-						}),
-						new TextRender(_parent, `${upFirst(DS.translate("upgrade chances"))}`, 2),
-					];
-				},
-			},
-			ButtonKeep: {
-				attributes: {
-					name: "ButtonKeep"
-				},
-				depth: 101,
-				position: new Vector2(1000, 645),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 1, {
-							onClick: Events.click.button.keep,
-						}),
-						new TextRender(_parent, `${upFirst(DS.translate("keep"))}`, 2),
-					];
+				createComponentsFor(parent) {
+					return [new SpriteRender(parent, sprites.buttleBackground, 0)];
 				},
 			},
 			BuildPrompt: {
@@ -189,60 +112,256 @@ class Prefabs {
 				depth: 1,
 				position: vector2(0, 0),
 				size: new Vector2(40, 40),
-				createComponentsFor(_parent) {
+				createComponentsFor(parent) {
 					return [
-						new SpriteRender(_parent, sprites.randomGem, 0),
+						new SpriteRender(parent, sprites.randomGem, 0),
 					];
 				},
 			},
-			ButtonRebuild: {
+			GUIBack: {
 				attributes: {
-					name: "ButtonRebuild"
+					name: "GUIBack"
 				},
-				depth: 101,
-				position: new Vector2(1000, 300),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 0, {
-							onClick: Events.click.button.rebuild,
-						}),
-						new TextRender(_parent, `${upFirst(DS.translate("rebuild"))}`, 2),
-					];
+				depth: 100,
+				position: new Vector2(1000, 400),
+				size: new Vector2(400, 800),
+				createComponentsFor(parent) {
+					return [new SpriteRender(parent, sprites.backInterface, 0, undefined, {
+						shadowBlur: 10,
+						shadowColor: 'rgba(0, 0, 1, .5)',
+					})];
+				},
+				children: {
+					ButtonBuild: {
+						attributes: {
+							name: "ButtonBuild"
+						},
+						depth: 101,
+						position: new Vector2(0, -200),
+						size: new Vector2(350, 50),
+						createComponentsFor(parent) {
+							return [
+								new SpriteRender(parent,
+									sprites.button,
+									0,
+									{
+										onClick: Events.click.button.build,
+										onHoverEnter: Events.hoverEnter.button,
+										onHoverLeave: Events.hoverLeave.button,
+									},
+									GD.config.style.buttonSpite),
+								new TextRender(parent,
+									`${upFirst(DS.translate("build"))}`,
+									2,
+									GD.config.style.textGlobal),
+							];
+						},
+					},
+					ButtonUpgradeChances: {
+						attributes: {
+							name: "ButtonUpgradeChances"
+						},
+						depth: 101,
+						position: new Vector2(0, -130),
+						size: new Vector2(350, 50),
+						createComponentsFor(parent) {
+							return [
+								new SpriteRender(parent, sprites.button, 0, {
+									onClick: Events.click.button.upgradeChances,
+									onHover: Events.hover.button.chances,
+									onHoverEnter: Events.hoverEnter.button,
+									onHoverLeave: Events.hoverLeave.button,
+								}, GD.config.style.buttonSpite),
+								new TextRender(parent,
+									`${upFirst(DS.translate("upgrade chances"))}`,
+									2,
+									GD.config.style.textGlobal),
+							];
+						},
+					},
+					ButtonKeep: {
+						attributes: {
+							name: "ButtonKeep"
+						},
+						depth: 101,
+						position: new Vector2(0, 245),
+						size: new Vector2(350, 50),
+						createComponentsFor(parent) {
+							return [
+								new SpriteRender(parent, sprites.button, 1, {
+									onClick: Events.click.button.keep,
+									onHoverEnter: Events.hoverEnter.button,
+									onHoverLeave: Events.hoverLeave.button,
+								}, GD.config.style.buttonSpite),
+								new TextRender(parent,
+									`${upFirst(DS.translate("keep"))}`,
+									2,
+									GD.config.style.textGlobal),
+							];
+						},
+					},
+					ButtonRebuild: {
+						attributes: {
+							name: "ButtonRebuild"
+						},
+						depth: 101,
+						position: new Vector2(0, -200),
+						size: new Vector2(350, 50),
+						createComponentsFor(parent) {
+							return [
+								new SpriteRender(parent, sprites.button, 0, {
+									onClick: Events.click.button.rebuild,
+									onHoverEnter: Events.hoverEnter.button,
+									onHoverLeave: Events.hoverLeave.button,
+								}, GD.config.style.buttonSpite),
+								new TextRender(parent,
+									`${upFirst(DS.translate("rebuild"))}`,
+									2,
+									GD.config.style.textGlobal),
+							];
+						},
+					},
+					ButtonUpgrade: {
+						attributes: {
+							name: "ButtonUpgrade"
+						},
+						depth: 101,
+						position: new Vector2(0, 355),
+						size: new Vector2(350, 50),
+						createComponentsFor(parent) {
+							return [
+								new SpriteRender(parent, sprites.button, 1, {
+									onClick: Events.click.button.upgrade,
+									onHoverEnter: Events.hoverEnter.button,
+									onHoverLeave: Events.hoverLeave.button,
+								}, GD.config.style.buttonSpite),
+								new TextRender(parent,
+									`${upFirst(DS.translate("upgrade"))}`,
+									2,
+									GD.config.style.textGlobal),
+							];
+						},
+					},
+					ButtonDestroy: {
+						attributes: {
+							name: "ButtonDestroy"
+						},
+						depth: 101,
+						position: new Vector2(0, 245),
+						size: new Vector2(350, 50),
+						createComponentsFor(parent) {
+							return [
+								new SpriteRender(parent, sprites.button, 0, {
+									onClick: Events.click.button.destroy,
+									onHoverEnter: Events.hoverEnter.button,
+									onHoverLeave: Events.hoverLeave.button,
+								}, GD.config.style.buttonSpite),
+								new TextRender(parent,
+									`${upFirst(DS.translate("destroy"))}`,
+									2,
+									GD.config.style.textGlobal),
+							];
+						},
+					},
+					GoldLabel: {
+						depth: 101,
+						position: new Vector2(-90, -300),
+						size: new Vector2(130, 50),
+						createComponentsFor(parent) {
+							return [new SpriteRender(parent, sprites.labelBack, 0, undefined, {
+								shadowBlur: 10,
+								shadowColor: 'rgba(1, 1, 1, .5)',
+								shadowOffsetY: 5,
+							})]
+						},
+						children: {
+							GoldCount: {
+								depth: 101,
+								position: new Vector2(0, 5),
+								size: new Vector2(130, 50),
+								createComponentsFor(parent) {
+									return [
+										new TextRender(parent, () => {
+											return `${GameData.amountGold}`;
+										}, 2)];
+								},
+							},
+							GoldIcon: {
+								depth: 101,
+								position: new Vector2(40, 0),
+								size: new Vector2(40, 40),
+								createComponentsFor(parent) {
+									return [new SpriteRender(parent, sprites.coin, 0)];
+								},
+							},
+						}
+					},
+					LivesLabel: {
+						x: 1090,
+						y: 80,
+						depth: 101,
+						position: new Vector2(90, -300),
+						size: new Vector2(130, 50),
+						createComponentsFor(parent) {
+							return [new SpriteRender(parent, sprites.labelBack, 0, undefined, {
+								shadowBlur: 10,
+								shadowColor: 'rgba(1, 1, 1, .5)',
+								shadowOffsetY: 5,
+							})]
+						},
+						children: {
+							LivesCount: {
+								depth: 101,
+								position: new Vector2(0, 5),
+								size: new Vector2(130, 50),
+								createComponentsFor(parent) {
+									return [
+										new TextRender(parent, () => {
+											return `${GameData.lives}`;
+										}, 2)];
+								},
+							},
+							LivesIcon: {
+								depth: 101,
+								position: new Vector2(40, 0),
+								size: new Vector2(40, 40),
+								createComponentsFor(parent) {
+									return [new SpriteRender(parent, sprites.heart, 0)];
+								},
+							},
+						}
+					},
+					WaleLabel: {
+						x: 1090,
+						y: 80,
+						depth: 101,
+						position: new Vector2(0, -370),
+						size: new Vector2(160, 40),
+						createComponentsFor(parent) {
+							return [new SpriteRender(parent, sprites.labelBack, 0, undefined, {
+								shadowBlur: 10,
+								shadowColor: 'rgba(1, 1, 1, .5)',
+								shadowOffsetY: 5,
+							})]
+						},
+						children: {
+							LivesCount: {
+								depth: 101,
+								position: new Vector2(0, 3),
+								size: new Vector2(160, 50),
+								createComponentsFor(parent) {
+									return [
+										new TextRender(parent, () => {
+											return `${upFirst(DS.translate("wale"))}: ${GameData.wale - 1}`;
+										}, 2)];
+								},
+							},
+						}
+					},
 				},
 			},
-			ButtonUpgrade: {
-				attributes: {
-					name: "ButtonUpgrade"
-				},
-				depth: 101,
-				position: new Vector2(1000, 755),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 1, {
-							onClick: Events.click.button.upgrade,
-						}),
-						new TextRender(_parent, `${upFirst(DS.translate("upgrade"))}`, 2),
-					];
-				},
-			},
-			ButtonDestroy: {
-				attributes: {
-					name: "ButtonDestroy"
-				},
-				depth: 101,
-				position: new Vector2(1000, 645),
-				size: new Vector2(350, 50),
-				createComponentsFor(_parent) {
-					return [
-						new SpriteRender(_parent, sprites.button, 0, {
-							onClick: Events.click.button.destroy,
-						}),
-						new TextRender(_parent, `${upFirst(DS.translate("destroy"))}`, 2),
-					];
-				},
-			}
+
+
 		};
 	}
 	static other = {

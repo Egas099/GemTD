@@ -1,10 +1,9 @@
 class TextRender extends MonoBehavior {
-	constructor(_parent = GameObject, _textInput, _depth = 0, _parametersText = null, _onClickFunc = null) {
+	constructor(_parent, _textInput, _depth = 0, _options) {
 		super(_parent);
 		if (_textInput) {
 			this.textInput = _textInput;
 		}
-		if (_onClickFunc) this.onClickFunc = _onClickFunc;
 		this.className = "TextRender";
 		this.depth = _depth;
 		this.renderLineText = [];
@@ -12,6 +11,7 @@ class TextRender extends MonoBehavior {
 			x: this.parent.size.x / 2 - 10,
 			y: this.parent.size.y / 2 - 30,
 		}
+		this.style = _options;
 	}
 	calcPositionString() {
 		this.renderLineText = [];
@@ -27,10 +27,13 @@ class TextRender extends MonoBehavior {
 		this.renderLineText.forEach(textLine => {
 			RenderInterface.fillText(
 				this.depth + this.parent.depth,
-				textLine,
-				this.parent.position.x - this.size.x,
-				this.parent.position.y - this.size.y + 20 * i,
-				this.parent.size.x
+				{
+					style: this.style,
+					text: textLine,
+					x: this.parent.position.x - this.size.x,
+					y: this.parent.position.y - this.size.y + 20 * i,
+					maxWidth: this.parent.size.x
+				}
 			);
 			i++;
 		});

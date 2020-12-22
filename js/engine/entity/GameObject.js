@@ -12,8 +12,8 @@ class GameObject {
 		this.depth = _depth
 		this.dataCreate = Date.now();
 		for (const key in _attributes) {
-            this[key] = _attributes[key];
-        }
+			this[key] = _attributes[key];
+		}
 	}
 	IsEnable() {
 		return this.#enable;
@@ -48,7 +48,7 @@ class GameObject {
 	 * Поиск компонента по имени класса
 	 * @param _componentName Имя компонента (класса)
 	 */
-	findComponentByName(_componentName) {
+	getComponent(_componentName) {
 		for (var comp in this.components) {
 			if (comp == _componentName) return this.components[comp];
 		}
@@ -58,18 +58,30 @@ class GameObject {
 	 * Создание GameObject из заготовки(префаба).
 	 * @param _object Префаб
 	 */
-	static Instantiate(_object) {
-		const position = _object.position;
+	static Instantiate(_object, _parent = undefined) {
+		let position;
+		if (_parent) {
+			position = Vector2.Sum(_object.position, _parent.position);
+		} else {
+			position = _object.position;
+		}
 		const size = _object.size;
-		var obj = new GameObject(new Vector2(position.x, position.y), new Vector2(size.x, size.y), _object.depth,_object.attributes);
-		const comp = _object.createComponentsFor(obj);
-		comp.forEach(element => {
-			obj.addComponent(element);
-		});
-		comp.forEach(element => {
-			element.Start();
-		});
-		return obj;
+		var newObject = new GameObject(new Vector2(position.x, position.y), new Vector2(size.x, size.y), _object.depth, _object.attributes);
+		const comp = _object.createComponentsFor(newObject);
+		if (comp.length !== 0) {
+			comp.forEach(element => {
+				newObject.addComponent(element);
+			});
+			comp.forEach(element => {
+				element.Start();
+			});
+		}
+		if (_object.children) {
+			for (const name in _object.children) {
+				GameObject.Instantiate(_object.children[name], newObject);
+			}
+		}
+		return newObject;
 	}
 	/**
 	 * Удаление объекта из глобального массива объектов

@@ -2,14 +2,30 @@
     "config": {
         "system": {
             "hoverTimeOut": 50,
-            "clickTimeOut": 20
+            "clickTimeOut": 20,
+            "language": "ru"
         },
         "game": {
             "rebuilCost": 10,
             "enemiesPerWave": 10,
             "enemiesSpawnTimeOut": 1000,
             "buildCountPerWave": 5,
-            "startAmountGold": 1000
+            "startAmountGold": 10000
+        },
+        "style": {
+            "buttonSpite": {
+                "shadowBlur": 5,
+                "shadowColor": "rgba(0, 0, 1, .5)",
+                "shadowOffsetY": 5
+            },
+            "textGlobal": {
+                "font": "25px Arial",
+                "fillStyle": "rgb(59, 60, 70)"
+            },
+            "global": {
+                "font": "25px Arial",
+                "fillStyle": "blck"
+            }
         }
     },
     "data": {},
@@ -53,9 +69,14 @@
     },
     "targetsTypes": {
         "all": [
-            "ground", "fly"
+            "ground",
+            "fly"
         ],
-        "ground": ["ground"],
-        "fly": ["fly"]
+        "ground": [
+            "ground"
+        ],
+        "fly": [
+            "fly"
+        ]
     }
 }

@@ -31,7 +31,6 @@ var spritesInfo = {
 	limePixel: spritesPath + "UI/HealthBar/LimePixel.bmp",
 	blackPixel: spritesPath + "UI/HealthBar/BlackPixel.bmp",
 	human: spritesPath + "heroes/human.png",
-	tile: spritesPath + "tile.png",
 	windowBack: spritesPath + "UI/windowBack.bmp",
 	buttleBackground: spritesPath + "buttleBackground.bmp",
 	randomGem: spritesPath + "heroes/randomGem.bmp",
@@ -39,12 +38,21 @@ var spritesInfo = {
 	selectionOutlineBlack: spritesPath + "squareBlack.png",
 	heart: spritesPath + "UI/heart.png",
 	coin: spritesPath + "UI/coin.png",
+	labelBack: spritesPath + "UI/back.png",
 	shells: {
 		type: "spriteSheet",
 		path: spritesPath + "heroes/gemShells.png",
 		width: 20,
 		height: 20,
-		column: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz", ],
+		column: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz",],
+		rows: [""],
+	},
+	healthBars: {
+		type: "spriteSheet",
+		path: spritesPath + "UI/healthBars.bmp",
+		width: 4,
+		height: 2,
+		column: ["green", "lime", "red", "black"],
 		rows: [""],
 	},
 	gems: {
@@ -52,8 +60,8 @@ var spritesInfo = {
 		path: spritesPath + "heroes/gems.png",
 		width: 40,
 		height: 50,
-		rows: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz", ],
-		column: ["chipped", "flawed", "normal", "flawless", "perfect", "greate", ],
+		rows: ["emerald", "aquamarine", "opal", "ruby", "diamond", "sapphire", "amethyst", "topaz",],
+		column: ["chipped", "flawed", "normal", "flawless", "perfect", "greate",],
 	},
 	stones: {
 		type: "spriteSheet",
@@ -81,3 +89,4 @@ function createImg(_path) {
 	return newImg;
 }
 loadSprites();
+console.log(sprites.healthBars);

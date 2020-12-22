@@ -1,4 +1,5 @@
 class EventSystem {
+	static hoveredObject = {};
 	static SortingObjectsByDepth(objects) {
 		objects.sort((a, b) => a.depth !== b.depth ?
 			(a.depth < b.depth ? 1 : -1) :
@@ -8,8 +9,8 @@ class EventSystem {
 	static FindObjectsOnPosition(_clickPos) {
 		var objects = [];
 		game.prototypesGameObject.forEach(object => {
-			if ((object.IsEnable()) && EventSystem.IsInclude(_clickPos, object) && (
-					object.findComponentByName("SpriteRender"))) {
+			if ((object.IsEnable()) && EventSystem.IsInclude(_clickPos, object)
+				&& (object.getComponent("SpriteRender"))) {
 				objects.push(object);
 			}
 		});
@@ -36,7 +37,14 @@ class EventSystem {
 		var objects = EventSystem.FindObjectsOnPosition(mousePos);
 		if (objects.length != 0) {
 			objects = EventSystem.SortingObjectsByDepth(objects);
-			if (!objects[0].findComponentByName("SpriteRender").onHover(objects[0])) {
+			if (this.hoveredObject !== objects[0]) {
+				if (this.hoveredObject) {
+					this.hoveredObject.getComponent("SpriteRender").onHoverLeave(this.hoveredObject);
+					objects[0].getComponent("SpriteRender").onHoverEnter(objects[0]);
+				}
+				this.hoveredObject = objects[0];
+			}
+			if (!objects[0].getComponent("SpriteRender").onHover(objects[0])) {
 				Events.hover.global(mousePos);
 			}
 		}
@@ -46,7 +54,7 @@ class EventSystem {
 		var objects = EventSystem.FindObjectsOnPosition(clickPos);
 		if (objects.length != 0) {
 			objects = EventSystem.SortingObjectsByDepth(objects);
-			if (!objects[0].findComponentByName("SpriteRender").onClick(objects[0])) {
+			if (!objects[0].getComponent("SpriteRender").onClick(objects[0])) {
 				Events.click.global(clickPos);
 			}
 		}
