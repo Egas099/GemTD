@@ -26,19 +26,20 @@ function loadSpriteSheet(_spriteSheet) {
 var spritesInfo = {
 	backInterface: spritesPath + "UI/backInterface.jpg",
 	button: spritesPath + "UI/button.png",
-	greenPixel: spritesPath + "UI/HealthBar/GreenPixel.bmp",
-	redPixel: spritesPath + "UI/HealthBar/RedPixel.bmp",
-	limePixel: spritesPath + "UI/HealthBar/LimePixel.bmp",
-	blackPixel: spritesPath + "UI/HealthBar/BlackPixel.bmp",
-	human: spritesPath + "heroes/human.png",
 	windowBack: spritesPath + "UI/windowBack.bmp",
 	buttleBackground: spritesPath + "buttleBackground.bmp",
 	randomGem: spritesPath + "heroes/randomGem.bmp",
 	selectionOutline: spritesPath + "selectionOutline.png",
 	selectionOutlineBlack: spritesPath + "squareBlack.png",
-	heart: spritesPath + "UI/heart.png",
-	coin: spritesPath + "UI/coin.png",
 	labelBack: spritesPath + "UI/back.png",
+	enemies: {
+		type: "spriteSheet",
+		path: spritesPath + "heroes/enemies.png",
+		width: 40,
+		height: 50,
+		column: ["human", "bat"],
+		rows: [""],
+	},
 	shells: {
 		type: "spriteSheet",
 		path: spritesPath + "heroes/gemShells.png",
@@ -71,6 +72,14 @@ var spritesInfo = {
 		column: ["0", "1", "2", "3"],
 		rows: [""],
 	},
+	icons: {
+		type: "spriteSheet",
+		path: spritesPath + "UI/icons.png",
+		width: 40,
+		height: 40,
+		column: ["heart", "coin"],
+		rows: [""],
+	},
 }
 
 function loadSprites() {
@@ -89,4 +98,3 @@ function createImg(_path) {
 	return newImg;
 }
 loadSprites();
-console.log(sprites.healthBars);

@@ -135,7 +135,7 @@ class Events {
 		button(_object) {
 			_object.getComponent("SpriteRender").setStyle({
 				shadowBlur: 10,
-				shadowColor: "rgba(77, 85, 139, 0.7)",
+				shadowColor: "rgba(50, 85, 139, 0.7)",
 			});
 		}
 	}
@@ -183,7 +183,11 @@ const GS = GameSystem = class GameSystem {
 			case "defence":
 				if (GameData.enemies.spawnCount > 0) {
 					if (Date.now() - GameData.enemies.lastSpawn > GameData.config.game.enemiesSpawnTimeOut) {
-						Creator.InstantHuman();
+						if (GD.wale % 4 === 0) {
+							Creator.InstantBat();
+						} else {
+							Creator.InstantHuman();
+						}
 						GameData.enemies.spawnCount--;
 						GameData.enemies.lastSpawn = Date.now();
 					}
@@ -201,7 +205,7 @@ const GS = GameSystem = class GameSystem {
 			let gem = Creator.InstantGem(buildPos)
 			DS.takeMapSquare(_position, "gem");
 			GameData.build.count--;
-			Creator.InstantGemPrompt(gem);
+			GameData.build.gemsPrompts.push(Creator.InstantBuiltGemOutline(gem));
 			Events.click.object.gem(gem);
 		},
 		newWale() {
@@ -381,7 +385,7 @@ class Creator {
 			size: vector2(350, 300),
 			createComponentsFor(_parent) {
 				return [
-					new TextRender(_parent, this.infoText, 11, GD.config.style.textGlobal),
+					new TextRender(_parent, this.infoText, 11, GD.config.style.textMain),
 					new SpriteRender(_parent, sprites.windowBack, 11, undefined),
 				];
 			},
@@ -420,20 +424,56 @@ class Creator {
 			},
 			depth: 10,
 			position: new Vector2(10, 90),
-			size: new Vector2(40, 40),
+			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
 					new EnemyController(_parent, {
 						health: this.health,
 						healthMax: this.health,
 						damage: this.stat.damage + Math.round(GameData.wale / 10),
-						speed: (this.stat.speed + (GameData.wale / 10)),
+						speed: (this.stat.speed + (GameData.wale / 20)),
 						type: this.stat.type,
 					}),
-					new SpriteRender(_parent, sprites.human, 0, {
-						onClick: Events.click.object.enemy,
-					}),
+					new SpriteRender(_parent,
+						sprites.enemies.human,
+						0,
+						{
+							onClick: Events.click.object.enemy,
+						}),
 					new MoveController(_parent, 1, GameData.enemies.groundWay, GS.action.enemyEscape),
+					new HealthBar(_parent),
+				];
+			},
+		});
+	}
+	static InstantBat() {
+		GameData.enemies.left++;
+		return GameObject.Instantiate({
+			stat: GameData.enemies.info.bat,
+			health: Math.round(GameData.enemies.info.human.health + 10 * (Math.floor(GameData.wale * 1.5) - 1)),
+			attributes: {
+				tag: "enemy",
+			},
+			depth: 11,
+			position: new Vector2(10, 90),
+			size: new Vector2(40, 50),
+			createComponentsFor(_parent) {
+				return [
+					new EnemyController(_parent, {
+						health: this.health,
+						healthMax: this.health,
+						damage: this.stat.damage + Math.round(GameData.wale / 10),
+						speed: (this.stat.speed + (GameData.wale / 20)),
+						type: this.stat.type,
+					}),
+					new SpriteRender(_parent,
+						sprites.enemies.bat,
+						0,
+						{
+							onClick: Events.click.object.enemy,
+						},
+						GD.config.style.bat),
+					new MoveController(_parent, 1, GameData.enemies.flyWay(), GS.action.enemyEscape),
 					new HealthBar(_parent),
 				];
 			},
@@ -479,9 +519,13 @@ class Creator {
 			targetType: GameData.gems.info.types[dropped.gem].targetType,
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.gems[dropped.gem + dropped.quality], 0, {
-						onClick: Events.click.object.gem,
-					}),
+					new SpriteRender(_parent,
+						sprites.gems[dropped.gem + dropped.quality],
+						0,
+						{
+							onClick: Events.click.object.gem,
+						},
+						GD.config.style.gem),
 					new GemController(_parent),
 					new AttackEnemy(_parent, {
 						damageMin: this.stat.minDamage,
@@ -502,31 +546,30 @@ class Creator {
 				tag: "stone",
 			},
 			depth: 10,
-			position: {
-				x: _position.x,
-				y: _position.y
-			},
+			position: vector2(_position.x, _position.y),
 			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
-					new SpriteRender(_parent, sprites.stones[Math.floor(Math.random() * 4)], 0, {
-						onClick: Events.click.object.stone,
-					}),
+					new SpriteRender(_parent,
+						sprites.stones[Math.floor(Math.random() * 4)],
+						0,
+						{
+							onClick: Events.click.object.stone,
+						},
+						GD.config.style.stone),
 				];
 			},
 		})
 	}
-	static InstantGemPrompt(_object) {
-		let prompt;
-		GameData.build.gemsPrompts.push(prompt = GameObject.Instantiate({
+	static InstantBuiltGemOutline(_object) {
+		return GameObject.Instantiate({
 			depth: _object.depth - 1.1,
 			position: new Vector2(_object.position.x, _object.position.y + 6),
 			size: new Vector2(50, 50),
 			createComponentsFor(_parent) {
 				return [new SpriteRender(_parent, sprites.selectionOutlineBlack, 0)];
 			},
-		}));
-		return prompt;
+		});
 	}
 }
 class Algo {

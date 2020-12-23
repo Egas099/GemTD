@@ -97,9 +97,9 @@ class RenderInterface {
 		this.context.save();
 		this.context.font = "20px serif";
 		this.context.fillStyle = "#800080";
-		this.context.fillText("Обьектов: " + game.prototypesGameObject.length, 10, 20);
-		this.context.fillText("Компонентов: " + game.prototypesMonoBehavior.length, 10, 40);
-		this.context.fillText("Спрайтов: " + this.nextFrame.length, 10, 60);
+		this.context.fillText("GameObjects: " + game.prototypesGameObject.length, 10, canvas.height - 60);
+		this.context.fillText("Components: " + game.prototypesMonoBehavior.length, 10, canvas.height - 40);
+		this.context.fillText("Display objects: " + this.nextFrame.length, 10, canvas.height - 20);
 		window.requestAnimationFrame(() => {
 			const now = performance.now();
 			while (this.times.length > 0 && this.times[0] <= now - 1000) {
@@ -107,9 +107,8 @@ class RenderInterface {
 			}
 			this.times.push(now);
 		});
-		this.context.fillText("Fps: " + this.times.length, 10, 80);
-		this.context.fillText("Состояние: " + GameData.game.state, 10, canvas.height - 40);
-		this.context.fillText("Волна: " + GameData.wale, 10, canvas.height - 20);
+		this.context.fillText("Fps: " + this.times.length, 10, 20);
+		// this.context.fillText("State: " + GameData.game.state, 10, 20);
 		this.context.restore();
 	}
 	static Start() {

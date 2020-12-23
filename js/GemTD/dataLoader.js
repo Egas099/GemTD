@@ -11,13 +11,14 @@ const GD = GameData = class GameData {
 		keep: undefined,
 	};
 	static enemies = {
+		type: "ground",
 		info: {},
 		groundWay: undefined,
 		lastSpawn: Date.now(),
 		left: 0,
 		flyWay: () => [
 			new Vector2(170, 90), //→
-			new Vector2(150, 450), //↓
+			new Vector2(170, 450), //↓
 			new Vector2(650, 450), //→
 			new Vector2(650, 90), //↑
 			new Vector2(390, 90), //←
@@ -52,9 +53,6 @@ const GD = GameData = class GameData {
 		moveDelay: 20,
 	}
 	static notTranslated = [];
-	static getWidth(_text) {
-		return canvas.getContext('2d').measureText(_text).width;
-	}
 }
 for (let i = 0; i <= 39; i++)
 	GameData.build.map.push([]);
@@ -149,11 +147,11 @@ class Prefabs {
 										onHoverEnter: Events.hoverEnter.button,
 										onHoverLeave: Events.hoverLeave.button,
 									},
-									GD.config.style.buttonSpite),
+									GD.config.style.button),
 								new TextRender(parent,
 									`${upFirst(DS.translate("build"))}`,
 									2,
-									GD.config.style.textGlobal),
+									GD.config.style.textMain),
 							];
 						},
 					},
@@ -162,7 +160,7 @@ class Prefabs {
 							name: "ButtonUpgradeChances"
 						},
 						depth: 101,
-						position: new Vector2(0, -130),
+						position: new Vector2(0, -137),
 						size: new Vector2(350, 50),
 						createComponentsFor(parent) {
 							return [
@@ -171,11 +169,11 @@ class Prefabs {
 									onHover: Events.hover.button.chances,
 									onHoverEnter: Events.hoverEnter.button,
 									onHoverLeave: Events.hoverLeave.button,
-								}, GD.config.style.buttonSpite),
+								}, GD.config.style.button),
 								new TextRender(parent,
 									`${upFirst(DS.translate("upgrade chances"))}`,
 									2,
-									GD.config.style.textGlobal),
+									GD.config.style.textMain),
 							];
 						},
 					},
@@ -192,11 +190,11 @@ class Prefabs {
 									onClick: Events.click.button.keep,
 									onHoverEnter: Events.hoverEnter.button,
 									onHoverLeave: Events.hoverLeave.button,
-								}, GD.config.style.buttonSpite),
+								}, GD.config.style.button),
 								new TextRender(parent,
 									`${upFirst(DS.translate("keep"))}`,
 									2,
-									GD.config.style.textGlobal),
+									GD.config.style.textMain),
 							];
 						},
 					},
@@ -213,11 +211,11 @@ class Prefabs {
 									onClick: Events.click.button.rebuild,
 									onHoverEnter: Events.hoverEnter.button,
 									onHoverLeave: Events.hoverLeave.button,
-								}, GD.config.style.buttonSpite),
+								}, GD.config.style.button),
 								new TextRender(parent,
 									`${upFirst(DS.translate("rebuild"))}`,
 									2,
-									GD.config.style.textGlobal),
+									GD.config.style.textMain),
 							];
 						},
 					},
@@ -234,11 +232,11 @@ class Prefabs {
 									onClick: Events.click.button.upgrade,
 									onHoverEnter: Events.hoverEnter.button,
 									onHoverLeave: Events.hoverLeave.button,
-								}, GD.config.style.buttonSpite),
+								}, GD.config.style.button),
 								new TextRender(parent,
 									`${upFirst(DS.translate("upgrade"))}`,
 									2,
-									GD.config.style.textGlobal),
+									GD.config.style.textMain),
 							];
 						},
 					},
@@ -255,11 +253,11 @@ class Prefabs {
 									onClick: Events.click.button.destroy,
 									onHoverEnter: Events.hoverEnter.button,
 									onHoverLeave: Events.hoverLeave.button,
-								}, GD.config.style.buttonSpite),
+								}, GD.config.style.button),
 								new TextRender(parent,
 									`${upFirst(DS.translate("destroy"))}`,
 									2,
-									GD.config.style.textGlobal),
+									GD.config.style.textMain),
 							];
 						},
 					},
@@ -291,7 +289,7 @@ class Prefabs {
 								position: new Vector2(40, 0),
 								size: new Vector2(40, 40),
 								createComponentsFor(parent) {
-									return [new SpriteRender(parent, sprites.coin, 0)];
+									return [new SpriteRender(parent, sprites.icons.coin, 0)];
 								},
 							},
 						}
@@ -326,7 +324,7 @@ class Prefabs {
 								position: new Vector2(40, 0),
 								size: new Vector2(40, 40),
 								createComponentsFor(parent) {
-									return [new SpriteRender(parent, sprites.heart, 0)];
+									return [new SpriteRender(parent, sprites.icons.heart, 0)];
 								},
 							},
 						}
@@ -360,72 +358,69 @@ class Prefabs {
 					},
 				},
 			},
-
-
 		};
 	}
 	static other = {
-
 	}
 }
 
 function AddProtecteCells() {
-	GameData.build.protectedCells.splice(0, 0, vector2(0, 4));
-	GameData.build.protectedCells.splice(0, 0, vector2(39, 34));
+	GameData.build.protectedCells.push(vector2(0, 4));
+	GameData.build.protectedCells.push(vector2(39, 34));
 	for (let x = 5; x < 11; x++) {
 		for (let y = 4; y < 6; y++) {
-			GameData.build.protectedCells.splice(0, 0, vector2(x, y));
+			GameData.build.protectedCells.push(vector2(x, y));
 		}
 	}
-	GameData.build.protectedCells.splice(0, 0, vector2(7, 6));
-	GameData.build.protectedCells.splice(0, 0, vector2(8, 6));
-	GameData.build.protectedCells.splice(0, 0, vector2(7, 7));
-	GameData.build.protectedCells.splice(0, 0, vector2(8, 7));
+	GameData.build.protectedCells.push(vector2(7, 6));
+	GameData.build.protectedCells.push(vector2(8, 6));
+	GameData.build.protectedCells.push(vector2(7, 7));
+	GameData.build.protectedCells.push(vector2(8, 7));
 	for (let x = 17; x < 23; x++) {
 		for (let y = 4; y < 6; y++) {
-			GameData.build.protectedCells.splice(0, 0, vector2(x, y));
+			GameData.build.protectedCells.push(vector2(x, y));
 		}
 	}
-	GameData.build.protectedCells.splice(0, 0, vector2(19, 6));
-	GameData.build.protectedCells.splice(0, 0, vector2(20, 6));
-	GameData.build.protectedCells.splice(0, 0, vector2(19, 7));
-	GameData.build.protectedCells.splice(0, 0, vector2(20, 7));
+	GameData.build.protectedCells.push(vector2(19, 6));
+	GameData.build.protectedCells.push(vector2(20, 6));
+	GameData.build.protectedCells.push(vector2(19, 7));
+	GameData.build.protectedCells.push(vector2(20, 7));
 	for (let x = 29; x < 35; x++) {
 		for (let y = 4; y < 6; y++) {
-			GameData.build.protectedCells.splice(0, 0, vector2(x, y));
+			GameData.build.protectedCells.push(vector2(x, y));
 		}
 	}
-	GameData.build.protectedCells.splice(0, 0, vector2(31, 6));
-	GameData.build.protectedCells.splice(0, 0, vector2(32, 6));
-	GameData.build.protectedCells.splice(0, 0, vector2(31, 7));
-	GameData.build.protectedCells.splice(0, 0, vector2(32, 7));
+	GameData.build.protectedCells.push(vector2(31, 6));
+	GameData.build.protectedCells.push(vector2(32, 6));
+	GameData.build.protectedCells.push(vector2(31, 7));
+	GameData.build.protectedCells.push(vector2(32, 7));
 	for (let y = 19; y < 25; y++) {
 		for (let x = 7; x < 9; x++) {
-			GameData.build.protectedCells.splice(0, 0, vector2(x, y));
+			GameData.build.protectedCells.push(vector2(x, y));
 		}
 	}
-	GameData.build.protectedCells.splice(0, 0, vector2(9, 21));
-	GameData.build.protectedCells.splice(0, 0, vector2(10, 21));
-	GameData.build.protectedCells.splice(0, 0, vector2(9, 22));
-	GameData.build.protectedCells.splice(0, 0, vector2(10, 22));
+	GameData.build.protectedCells.push(vector2(9, 21));
+	GameData.build.protectedCells.push(vector2(10, 21));
+	GameData.build.protectedCells.push(vector2(9, 22));
+	GameData.build.protectedCells.push(vector2(10, 22));
 	for (let y = 19; y < 25; y++) {
 		for (let x = 31; x < 33; x++) {
-			GameData.build.protectedCells.splice(0, 0, vector2(x, y));
+			GameData.build.protectedCells.push(vector2(x, y));
 		}
 	}
-	GameData.build.protectedCells.splice(0, 0, vector2(29, 21));
-	GameData.build.protectedCells.splice(0, 0, vector2(30, 21));
-	GameData.build.protectedCells.splice(0, 0, vector2(29, 22));
-	GameData.build.protectedCells.splice(0, 0, vector2(30, 22));
+	GameData.build.protectedCells.push(vector2(29, 21));
+	GameData.build.protectedCells.push(vector2(30, 21));
+	GameData.build.protectedCells.push(vector2(29, 22));
+	GameData.build.protectedCells.push(vector2(30, 22));
 	for (let x = 17; x < 23; x++) {
 		for (let y = 33; y < 35; y++) {
-			GameData.build.protectedCells.splice(0, 0, vector2(x, y));
+			GameData.build.protectedCells.push(vector2(x, y));
 		}
 	}
-	GameData.build.protectedCells.splice(0, 0, vector2(19, 31));
-	GameData.build.protectedCells.splice(0, 0, vector2(20, 32));
-	GameData.build.protectedCells.splice(0, 0, vector2(19, 31));
-	GameData.build.protectedCells.splice(0, 0, vector2(20, 32));
+	GameData.build.protectedCells.push(vector2(19, 31));
+	GameData.build.protectedCells.push(vector2(20, 32));
+	GameData.build.protectedCells.push(vector2(19, 31));
+	GameData.build.protectedCells.push(vector2(20, 32));
 }
 
 function vector2(_x, _y) {
@@ -437,4 +432,7 @@ function vector2(_x, _y) {
 
 function upFirst(str) {
 	return (str) ? str[0].toUpperCase() + str.slice(1) : str;
+}
+function getWidth(_text) {
+	return canvas.getContext('2d').measureText(_text).width;
 }

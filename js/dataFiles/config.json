@@ -13,19 +13,38 @@
             "startAmountGold": 10000
         },
         "style": {
-            "buttonSpite": {
+            "global": {
+                "font": "25px Arial",
+                "fillStyle": "rgb(59, 60, 70)"
+            },
+            "textMain": {
+                "font": "25px Arial",
+                "fillStyle": "rgb(59, 60, 70)"
+            },
+            "button": {
                 "shadowBlur": 5,
                 "shadowColor": "rgba(0, 0, 1, .5)",
                 "shadowOffsetY": 5
             },
-            "textGlobal": {
-                "font": "25px Arial",
-                "fillStyle": "rgb(59, 60, 70)"
+            "stone": {
+                "shadowBlur": 5,
+                "shadowColor": "rgba(0, 0, 1, .5)",
+                "shadowOffsetY": 3,
+                "shadowOffsetX": 1
             },
-            "global": {
-                "font": "25px Arial",
-                "fillStyle": "blck"
+            "gem": {
+                "shadowBlur": 5,
+                "shadowColor": "rgba(0, 0, 1, .3)",
+                "shadowOffsetY": 3,
+                "shadowOffsetX": 0
+            },
+            "bat": {
+                "shadowBlur": 3,
+                "shadowColor": "rgba(0, 0, 1, .5)",
+                "shadowOffsetY": 25,
+                "shadowOffsetX": 0
             }
+
         }
     },
     "data": {},
