@@ -337,10 +337,10 @@ class Creator {
 					`${upFirst(DS.translate(_object.quality))} ${DS.translate(_object.name)}`,
 					"",
 					(_object.damageMin !== _object.damageMax) ?
-						`${upFirst(DS.translate("damage"))}: ${_object.damageMin}-${_object.damageMax}` :
-						`${upFirst(DS.translate("damage"))}: ${_object.damageMin}`,
-					`${upFirst(DS.translate("rate of fire"))}: ${_object.fireRate}`,
-					`${upFirst(DS.translate("range"))}: ${_object.range}`,
+						`${upFirst(DS.translate("damage"))}: ${_object.state.damageMin}-${_object.state.damageMax}` :
+						`${upFirst(DS.translate("damage"))}: ${_object.state.damageMin}`,
+					`${upFirst(DS.translate("rate of fire"))}: ${_object.state.fireRate}`,
+					`${upFirst(DS.translate("range"))}: ${_object.state.range}`,
 				];
 				GameData.infoList.push(Creator.InstantGemRange(_object));
 				GameData.infoList.push(Creator.InstantSelectionOutline(_object));
@@ -350,9 +350,9 @@ class Creator {
 					return [
 						`${upFirst(DS.translate("enemy"))}`,
 						"",
-						`${upFirst(DS.translate("health"))}: ${_object.health}`,
-						`${upFirst(DS.translate("speed"))}: ${_object.speed}`,
-						`${upFirst(DS.translate("damage"))}: ${_object.damage}`,
+						`${upFirst(DS.translate("health"))}: ${_object.state.health}`,
+						`${upFirst(DS.translate("speed"))}: ${_object.state.speed}`,
+						`${upFirst(DS.translate("damage"))}: ${_object.state.damage}`,
 					]
 				};
 				break;
@@ -395,7 +395,7 @@ class Creator {
 		return GameObject.Instantiate({
 			name: "gemRange",
 			depth: _object.depth,
-			radius: _object.range,
+			radius: _object.state.range,
 			position: _object.position,
 			size: new Vector2(0, 0),
 			createComponentsFor(_parent) {
@@ -427,11 +427,17 @@ class Creator {
 			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
+					new State(_parent),
 					new EnemyController(_parent, {
-						health: this.health,
-						healthMax: this.health,
+						health: {
+							value: this.health,
+							props: {
+								max: this.health
+							}
+						},
+						// health: this.health,
+						// healthMax: this.health,
 						damage: this.stat.damage + Math.round(GameData.wale / 10),
-						speed: (this.stat.speed + (GameData.wale / 20)),
 						type: this.stat.type,
 					}),
 					new SpriteRender(_parent,
@@ -440,7 +446,9 @@ class Creator {
 						{
 							onClick: Events.click.object.enemy,
 						}),
-					new MoveController(_parent, 1, GameData.enemies.groundWay, GS.action.enemyEscape),
+					new MoveController(_parent, {
+						speed: (this.stat.speed + (GameData.wale / 20)),
+					}, GameData.enemies.groundWay, GS.action.enemyEscape),
 					new HealthBar(_parent),
 				];
 			},
@@ -459,11 +467,11 @@ class Creator {
 			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
+					new State(_parent),
 					new EnemyController(_parent, {
 						health: this.health,
 						healthMax: this.health,
 						damage: this.stat.damage + Math.round(GameData.wale / 10),
-						speed: (this.stat.speed + (GameData.wale / 20)),
 						type: this.stat.type,
 					}),
 					new SpriteRender(_parent,
@@ -473,7 +481,9 @@ class Creator {
 							onClick: Events.click.object.enemy,
 						},
 						GD.config.style.bat),
-					new MoveController(_parent, 1, GameData.enemies.flyWay(), GS.action.enemyEscape),
+					new MoveController(_parent, {
+						speed: (this.stat.speed + (GameData.wale / 20)),
+					}, GameData.enemies.flyWay(), GS.action.enemyEscape),
 					new HealthBar(_parent),
 				];
 			},
@@ -491,9 +501,12 @@ class Creator {
 			size: new Vector2(20, 20),
 			createComponentsFor(_parent) {
 				return [
+					new State(_parent),
 					new SpriteRender(_parent, sprites.shells[this.owner.name], 100),
 					new ShellController(_parent, this.target, this.damage, 10),
-					new MoveController(_parent, 15, [this.target.position]),
+					new MoveController(_parent, {
+						speed: 15,
+					}, [this.target.position]),
 				];
 			},
 		});
@@ -519,6 +532,7 @@ class Creator {
 			targetType: GameData.gems.info.types[dropped.gem].targetType,
 			createComponentsFor(_parent) {
 				return [
+					new State(_parent),
 					new SpriteRender(_parent,
 						sprites.gems[dropped.gem + dropped.quality],
 						0,
@@ -528,8 +542,13 @@ class Creator {
 						GD.config.style.gem),
 					new GemController(_parent),
 					new AttackEnemy(_parent, {
-						damageMin: this.stat.minDamage,
-						damageMax: this.stat.maxDamage,
+						damage: {
+							value: 0,
+							props: {
+								min: this.stat.minDamage,
+								max: this.stat.maxDamage,
+							}
+						},
 						range: this.stat.fireRange * 1.5,
 						fireRate: this.stat.fireRate,
 						targetType: this.targetType,

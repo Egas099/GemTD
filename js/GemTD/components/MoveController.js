@@ -1,13 +1,22 @@
 class MoveController extends MonoBehavior {
-	constructor(_parent, _speed, _movePath = [], _onEndPath) {
+	constructor(_parent, _values = {
+		speed: {
+			value: 0,
+			props: {
+				max: undefined,
+				min: undefined,
+			}
+		}
+	}, _movePath = [], _onEndPath) {
 		super(_parent);
 		this.className = "MoveController";
+
+		this.values = _values;
 		this.movePath = _movePath;
-		this.pointIndex = 0;
-
-		this.targetPos = this.movePath[this.pointIndex];
-
 		this.onEndPath = _onEndPath;
+
+		this.pointIndex = 0;
+		this.targetPos = this.movePath[this.pointIndex];
 		this.moveIncrement = 0;
 	}
 	checkDist() {
@@ -47,7 +56,7 @@ class MoveController extends MonoBehavior {
 			}
 
 		} else {
-			if (distance < (movePoints = this.speed * game.deltaTime)) {
+			if (distance < (movePoints = this.parent.state.speed * game.deltaTime)) {
 				this.moveIncrement += movePoints - distance;
 				this.parent.setPosition(this.targetPos);
 				this.moveToTarget();
@@ -55,7 +64,7 @@ class MoveController extends MonoBehavior {
 				this.parent.setPosition(null, new Vector2(
 					Math.round(((this.targetPos.x - this.parent.position.x) / distance) * movePoints),
 					Math.round(((this.targetPos.y - this.parent.position.y) / distance) * movePoints)
-					));
+				));
 			}
 		}
 
@@ -64,8 +73,13 @@ class MoveController extends MonoBehavior {
 		if (this.onEndPath) this.onEndPath(_object);
 	}
 	Start() {
-		if (this.parent.speed) this.speed = this.parent.speed
-		else this.speed = 0;
+		for (const value in this.values) {
+			if (this.values[value].value !== undefined) {
+				this.parent.state.addProperty(value, this.values[value].value, this.values[value].props);
+			} else {
+				this.parent.state.addProperty(value, this.values[value]);
+			}
+		}
 	}
 	Update() {
 		if (this.targetPos) {

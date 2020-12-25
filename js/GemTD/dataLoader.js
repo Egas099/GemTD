@@ -124,10 +124,12 @@ class Prefabs {
 				position: new Vector2(1000, 400),
 				size: new Vector2(400, 800),
 				createComponentsFor(parent) {
-					return [new SpriteRender(parent, sprites.backInterface, 0, undefined, {
-						shadowBlur: 10,
-						shadowColor: 'rgba(0, 0, 1, .5)',
-					})];
+					return [
+						new State(parent),
+						new SpriteRender(parent, sprites.backInterface, 0, undefined, {
+							shadowBlur: 10,
+							shadowColor: 'rgba(0, 0, 1, .5)',
+						})];
 				},
 				children: {
 					ButtonBuild: {

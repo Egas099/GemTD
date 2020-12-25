@@ -1,22 +1,24 @@
 class EnemyController extends MonoBehavior {
-    constructor(_parent, _stat = {
-        health: 0,
-        healthMax: 0,
+    constructor(_parent, _values = {
+        health: {
+            value: 0,
+            props: {
+                max: 0
+            }
+        },
         damage: 0,
         speed: 0,
         type: "ground",
     }) {
         super(_parent);
         this.className = "EnemyController";
-        for (const key in _stat) {
-            this.parent[key] = _stat[key];
-        }
+        this.values = _values;
     }
     takeDamage(_damage) {
         if (_damage > 0) {
-            this.parent.health -= _damage;
-            if (this.parent.health <= 0) {
-                this.parent.health = 0;
+            this.parent.state.health -= _damage;
+            if (this.parent.state.health <= 0) {
+                this.parent.state.health = 0;
                 this.Death();
             }
         }
@@ -24,6 +26,14 @@ class EnemyController extends MonoBehavior {
     Death() {
         GameSystem.action.enemyDie(this.parent);
     }
-    Start() {}
-    Update() {}
+    Start() {
+        for (const value in this.values) {
+            if (this.values[value].value !== undefined) {
+                this.parent.state.addProperty(value, this.values[value].value, this.values[value].props);
+            } else {
+                this.parent.state.addProperty(value, this.values[value]);
+            }
+        }
+    }
+    Update() { }
 }

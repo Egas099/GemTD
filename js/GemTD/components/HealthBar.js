@@ -65,19 +65,19 @@ class HealthBar extends MonoBehavior {
                 sHeight: curentBar.sHeight,
                 x: newPos.x,
                 y: newPos.y,
-                width: newSize.x / (this.maxHealth / this.parent.health),
+                width: newSize.x / (this.maxHealth / this.parent.state.health),
                 height: newSize.y,
             }
         );
     }
     Start() {
         this.depth = this.parent.getComponent("SpriteRender").depth + this.parent.depth;
-        this.maxHealth = this.parent.healthMax;
-        this.healthIncrement = this.parent.health;
+        this.maxHealth = this.parent.state.healthMax;
+        this.healthIncrement = this.parent.state.health;
     }
     Update() {
-        if (this.healthIncrement !== this.parent.health)
-            this.healthIncrement += (this.parent.health - this.healthIncrement) / 15;
+        if (this.healthIncrement !== this.parent.state.health)
+            this.healthIncrement += (this.parent.state.health - this.healthIncrement) / 15;
         this.render();
     }
 }
