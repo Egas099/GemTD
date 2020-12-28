@@ -1,10 +1,11 @@
 class ShellController extends MonoBehavior {
-    constructor(_parent, _target, _damage, _speed) {
+    constructor(_parent, _owner, _target, _damage, _speed) {
         super(_parent);
-        this.parent.speed = _speed;
-        this.damage = _damage;
-        this.target = _target;
         this.className = "ShellController";
+        this.owner = _owner;
+        this.target = _target;
+        this.damage = _damage;
+        this.parent.speed = _speed;
     }
     Start() {
         this.parent.getComponent("MoveController").onEndPath = function (_object) {
@@ -14,6 +15,7 @@ class ShellController extends MonoBehavior {
             if (GameObject.IsExist(target)) {
                 target.getComponent("EnemyController").takeDamage(damage);
             }
+            Sc.owner.getComponent("AttackEnemy").localEvent("onHit", { target: target, damage: damage });
             GameObject.Destroy(_object);
         };
     }

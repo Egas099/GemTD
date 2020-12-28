@@ -224,7 +224,8 @@ const GS = GameSystem = class GameSystem {
 			GameData.amountGold += Math.round(GameData.wale * 1.1);
 		},
 		enemyEscape(_object) {
-			GameData.lives -= _object.damage;
+			GameData.lives -= _object.state.damage;
+			_object.Disable();
 			GameObject.Destroy(_object);
 			GameData.enemies.left--;
 		},
@@ -336,7 +337,7 @@ class Creator {
 				infoText = [
 					`${upFirst(DS.translate(_object.quality))} ${DS.translate(_object.name)}`,
 					"",
-					(_object.damageMin !== _object.damageMax) ?
+					(_object.state.damageMin !== _object.state.damageMax) ?
 						`${upFirst(DS.translate("damage"))}: ${_object.state.damageMin}-${_object.state.damageMax}` :
 						`${upFirst(DS.translate("damage"))}: ${_object.state.damageMin}`,
 					`${upFirst(DS.translate("rate of fire"))}: ${_object.state.fireRate}`,
@@ -417,7 +418,7 @@ class Creator {
 	static InstantHuman() {
 		GameData.enemies.left++;
 		return GameObject.Instantiate({
-			stat: GameData.enemies.info.human,
+			stats: GameData.enemies.info.human,
 			health: Math.round(GameData.enemies.info.human.health + 10 * (Math.floor(GameData.wale * 1.9) - 1)),
 			attributes: {
 				tag: "enemy",
@@ -427,7 +428,7 @@ class Creator {
 			size: new Vector2(40, 50),
 			createComponentsFor(_parent) {
 				return [
-					new State(_parent),
+					new State(_parent,),
 					new EnemyController(_parent, {
 						health: {
 							value: this.health,
@@ -435,10 +436,8 @@ class Creator {
 								max: this.health
 							}
 						},
-						// health: this.health,
-						// healthMax: this.health,
-						damage: this.stat.damage + Math.round(GameData.wale / 10),
-						type: this.stat.type,
+						damage: this.stats.damage + Math.round(GameData.wale / 10),
+						type: this.stats.type,
 					}),
 					new SpriteRender(_parent,
 						sprites.enemies.human,
@@ -447,7 +446,12 @@ class Creator {
 							onClick: Events.click.object.enemy,
 						}),
 					new MoveController(_parent, {
-						speed: (this.stat.speed + (GameData.wale / 20)),
+						speed: {
+							value: (this.stats.speed + (GameData.wale / 20)),
+							props: {
+								min: 0,
+							}
+						},
 					}, GameData.enemies.groundWay, GS.action.enemyEscape),
 					new HealthBar(_parent),
 				];
@@ -457,7 +461,7 @@ class Creator {
 	static InstantBat() {
 		GameData.enemies.left++;
 		return GameObject.Instantiate({
-			stat: GameData.enemies.info.bat,
+			stats: GameData.enemies.info.bat,
 			health: Math.round(GameData.enemies.info.human.health + 10 * (Math.floor(GameData.wale * 1.5) - 1)),
 			attributes: {
 				tag: "enemy",
@@ -471,8 +475,8 @@ class Creator {
 					new EnemyController(_parent, {
 						health: this.health,
 						healthMax: this.health,
-						damage: this.stat.damage + Math.round(GameData.wale / 10),
-						type: this.stat.type,
+						damage: this.stats.damage + Math.round(GameData.wale / 10),
+						type: this.stats.type,
 					}),
 					new SpriteRender(_parent,
 						sprites.enemies.bat,
@@ -482,7 +486,7 @@ class Creator {
 						},
 						GD.config.style.bat),
 					new MoveController(_parent, {
-						speed: (this.stat.speed + (GameData.wale / 20)),
+						speed: (this.stats.speed + (GameData.wale / 20)),
 					}, GameData.enemies.flyWay(), GS.action.enemyEscape),
 					new HealthBar(_parent),
 				];
@@ -491,6 +495,7 @@ class Creator {
 	}
 	static InstantShell(_owner, _target, _damage) {
 		GameObject.Instantiate({
+			shellSpeed: Math.floor(_owner.state.range/11),
 			owner: _owner,
 			target: _target,
 			damage: _damage,
@@ -503,9 +508,9 @@ class Creator {
 				return [
 					new State(_parent),
 					new SpriteRender(_parent, sprites.shells[this.owner.name], 100),
-					new ShellController(_parent, this.target, this.damage, 10),
+					new ShellController(_parent, this.owner, this.target, this.damage, 10),
 					new MoveController(_parent, {
-						speed: 15,
+						speed: this.shellSpeed,
 					}, [this.target.position]),
 				];
 			},
@@ -518,7 +523,7 @@ class Creator {
 		} else {
 			dropped = Algo.getRandomGem();
 		}
-		const stat = GameData.gems.info.types[dropped.gem].quality[dropped.quality];
+		const stats = GameData.gems.info.types[dropped.gem].quality[dropped.quality];
 		const gem = GameObject.Instantiate({
 			attributes: {
 				name: dropped.gem,
@@ -528,11 +533,11 @@ class Creator {
 			depth: 10,
 			position: new Vector2(_position.x, _position.y - 5),
 			size: new Vector2(40, 50),
-			stat: stat,
+			stats: stats,
 			targetType: GameData.gems.info.types[dropped.gem].targetType,
 			createComponentsFor(_parent) {
 				return [
-					new State(_parent),
+					new State(_parent, this.stats.skills),
 					new SpriteRender(_parent,
 						sprites.gems[dropped.gem + dropped.quality],
 						0,
@@ -545,12 +550,12 @@ class Creator {
 						damage: {
 							value: 0,
 							props: {
-								min: this.stat.minDamage,
-								max: this.stat.maxDamage,
+								min: this.stats.minDamage,
+								max: this.stats.maxDamage,
 							}
 						},
-						range: this.stat.fireRange * 1.5,
-						fireRate: this.stat.fireRate,
+						range: this.stats.fireRange * 1.5,
+						fireRate: this.stats.fireRate,
 						targetType: this.targetType,
 					}),
 				];
@@ -604,7 +609,9 @@ class Algo {
 			}
 			chance += arrChance[GameData.gems.qualities[i + 1]];
 		}
-		droppedGem = GameData.gems.names[Math.floor(Math.random() * GameData.gems.names.length)];
+		// droppedGem = GameData.gems.names[Math.floor(Math.random() * GameData.gems.names.length)];
+		let debugGems = ["ruby", "topaz"];
+		droppedGem = debugGems[Math.floor(Math.random() * debugGems.length)];
 		return {
 			gem: droppedGem,
 			quality: droppedQuality

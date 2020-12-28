@@ -16,34 +16,49 @@ class AttackEnemy extends MonoBehavior {
         this.values = _values;
         this.lastFire = Date.now();
         this.target = undefined;
+
+        ["onFire", "onHit"].forEach(event => {
+            this[event] = [];
+        });
     }
-    findEnemy() {
-        let distance, minDist = this.parent.state.range;
+    addLocalEventListener(_event, _callback) {
+        this[_event].push(_callback);
+    }
+    localEvent(_eventName, _eventData) {
+        this[_eventName].forEach(event => {
+            event.call(this, _eventData);
+        });
+    }
+
+    findOneTarget = () => {
+        let newTarget, distance, minDist = this.parent.state.range;
         game.prototypesGameObject.forEach(object => {
             if (object.getComponent("EnemyController")) {
                 if (this.parent.state.targetType === "all" || this.parent.state.targetType === object.type) {
                     distance = Vector2.Distance(this.parent.position, object.position);
                     if (distance <= this.parent.state.range) {
                         if (distance < minDist) {
-                            this.target = object;
+                            newTarget = object;
                             minDist = distance;
                         }
                     }
                 }
             }
         });
+        return newTarget;
     }
-    attackTarget() {
+    tryAttack() {
         if (this.parent.state.fireRate < Date.now() - this.lastFire) {
             this.lastFire = Date.now();
-            this.fire();
+            this.fire(this.target);
+            this.localEvent("onFire");
         }
     }
-    fire() {
-        Creator.InstantShell(this.parent,
-            this.target,
-            Math.round(this.parent.state.damageMin + Math.random() *
-                (this.parent.state.damageMax - this.parent.state.damageMin))
+    fire(_target) {
+        Creator.InstantShell(
+            this.parent,
+            _target,
+            Math.randomIntRange(this.parent.state.damageMin, this.parent.state.damageMax)
         );
     }
     Start() {
@@ -57,14 +72,13 @@ class AttackEnemy extends MonoBehavior {
     }
     Update() {
         if (this.target === undefined) {
-            this.findEnemy();
+            this.target = this.findOneTarget();
         } else {
             if ((GameObject.IsExist(this.target) == true) &&
                 (Vector2.Distance(this.parent.position, this.target.position) <= this.parent.state.range)) {
-                this.attackTarget();
+                this.tryAttack();
             } else {
-                this.target = undefined;
-                this.findEnemy();
+                this.target = this.findOneTarget();
             }
 
         }

@@ -34,6 +34,15 @@ class EnemyController extends MonoBehavior {
                 this.parent.state.addProperty(value, this.values[value]);
             }
         }
+        // this.gEffect = true;
+        // setTimeout(, 1000);
     }
-    Update() { }
+    Update() {
+        // if (this.gEffect) {
+        //     if (this.parent.state.speed !== undefined) {
+        //         this.parent.state.addEffect();
+        //         this.gEffect = false;
+        //     }
+        // }
+    }
 }
