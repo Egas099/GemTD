@@ -32,7 +32,7 @@ class State extends MonoBehavior {
 					}
 					this[newProperty].cur = cur;
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			}
 		});
@@ -48,15 +48,28 @@ class State extends MonoBehavior {
 			});
 		}
 	}
-	addEffect() {
-		let newEffect = new Effect(this);
+	addEffect(_effectData) {
+		for (let i = 0; i < this.effects.length; i++) {
+			if (this.effects[i].name === _effectData.name) {
+				if (this.effects[i].priority < _effectData.params.priority) {
+					this.effects[i].undo();
+					this.effects.splice(i, 1);
+					break;
+				} else {
+					this.effects[i].applyingTime = Date.now();
+					return;
+				}
+			}
+		}
+		let newEffect = new Effect(this, _effectData);
 		this.effects.push(newEffect);
 		newEffect.apply();
 	}
 	equipSkills() {
 		for (const skill in this.skills) {
-			let curSkill = skills[this.skills[skill]];
-			curSkill.equip.call(this, curSkill.params);
+			let curSkill = skills[this.skills[skill].title];
+			curSkill.equip.call(this.parent,
+				(this.skills[skill].params) ? (this.skills[skill].params) : (curSkill.params));
 		}
 	}
 	Start() {
@@ -69,38 +82,36 @@ class State extends MonoBehavior {
 				effect.undo();
 				return false;
 			}
+			effect.update();
 			return true;
 		})
 	}
 	addAlias() { this.parent["state"] = this; }
 }
 class Effect {
-	constructor(_state, _settings = {
-		changedProps: {
-			speed: -1,
-		},
-		duration: 1000,
-	}) {
+	constructor(_state, _effectData) {
 		this.state = _state;
-		this.duration = _settings.duration;
-		this.changedProps = _settings.changedProps;
+		if (_effectData.params.duration) {
+			this.duration = _effectData.params.duration;
+		} else {
+			this.duration = 1000;
+		}
+		this.priority = _effectData.params.priority;
+		this.name = _effectData.name;
+		this.effectData = _effectData;
+		this.update = () => { };
 	}
 	checkDuration() {
 		return (this.applyingTime + this.duration < Date.now());
 	}
 	apply() {
 		this.applyingTime = Date.now();
-		for (const prop in this.changedProps) {
-			if (this.state.existProperty(prop)) {
-				this.state[prop] += this.changedProps[prop];
-			}
-		}
+		return this.effectData.apply.call(this, this.effectData.params);
 	}
 	undo() {
-		for (const prop in this.changedProps) {
-			if (this.state.existProperty(prop)) {
-				this.state[prop] -= this.changedProps[prop];
-			}
-		}
+		this.effectData.undo.call(this, this.effectData.params);
+	}
+	timeLeft() {
+		return (this.applyingTime + this.duration - Date.now());
 	}
 }

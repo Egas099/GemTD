@@ -3,7 +3,7 @@ loading();
 
 function loading() {
   canvas.getContext("2d").font = "40px serif";
-  canvas.getContext("2d").fillText("Loading...", canvas.width/2 - 50, canvas.height-20);
+  canvas.getContext("2d").fillText("Loading...", canvas.width / 2 - 50, canvas.height - 20);
 }
 window.onload = function initialisation() {
   setTimeout(() => {

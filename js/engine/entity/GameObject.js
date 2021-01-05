@@ -78,7 +78,9 @@ class GameObject {
 		}
 		if (_object.children) {
 			for (const name in _object.children) {
-				GameObject.Instantiate(_object.children[name], newObject);
+				if (_object.children.hasOwnProperty(name)) {
+					GameObject.Instantiate(_object.children[name], newObject);
+				}
 			}
 		}
 		return newObject;

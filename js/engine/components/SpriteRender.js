@@ -61,11 +61,9 @@ class SpriteRender extends MonoBehavior {
 		}
 	}
 	setStyle(_newStyle) {
-		// console.log("Было",this.style, this.defaultStyle);
 		for (const style in _newStyle) {
 			this.style[style] = _newStyle[style];
 		}
-		// console.log("Было",this.style, this.defaultStyle);
 	}
 	restoreStyle() {
 		this.setStyle(this.defaultStyle);

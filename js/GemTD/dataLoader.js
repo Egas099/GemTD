@@ -80,10 +80,6 @@ DataSystem.readTextFile("js/dataFiles/chances.json", function (inputData) {
 });
 DataSystem.readTextFile("js/dataFiles/gems.json", function (inputData) {
 	GameData.gems.info = inputData;
-	GameData.gems.names = [];
-	for (const type in GameData.gems.info.types) {
-		GameData.gems.names.push(type);
-	}
 });
 DataSystem.readTextFile("js/dataFiles/enemies.json", function (inputData) {
 	GameData.enemies.info = inputData;
@@ -440,3 +436,35 @@ function getWidth(_text) {
 Math.randomIntRange = function (x, y) {
 	return Math.floor(x + Math.random() * (y - x));
 }
+function decimalAdjust(type, value, exp) {
+	// Если степень не определена, либо равна нулю...
+	if (typeof exp === 'undefined' || +exp === 0) {
+		return Math[type](value);
+	}
+	value = +value;
+	exp = +exp;
+	// Если значение не является числом, либо степень не является целым числом...
+	if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+		return NaN;
+	}
+	// Сдвиг разрядов
+	value = value.toString().split('e');
+	value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+	// Обратный сдвиг
+	value = value.toString().split('e');
+	return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+}
+
+// Десятичное округление к ближайшему
+if (!Math.round10) {
+	Math.round10 = function (value, exp) {
+		return decimalAdjust('round', value, exp);
+	};
+}
+// Math.randomRange = function (x, y) {
+// 	return (x + Math.random() * (y - x));
+// }
+// Object.prototype.randomElement = function () {
+// 	let keys = Object.keys(this);
+// 	return this[keys[Math.floor(Math.random() * keys.length)]];
+// }

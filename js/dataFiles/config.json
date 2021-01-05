@@ -12,6 +12,18 @@
             "buildCountPerWave": 5,
             "startAmountGold": 10000
         },
+        "targetsSetting": {
+            "all": [
+                "ground",
+                "fly"
+            ],
+            "ground": [
+                "ground"
+            ],
+            "fly": [
+                "fly"
+            ]
+        },
         "style": {
             "global": {
                 "font": "25px Arial",
@@ -44,7 +56,6 @@
                 "shadowOffsetY": 25,
                 "shadowOffsetX": 0
             }
-
         }
     },
     "data": {},
@@ -84,18 +95,6 @@
                 "x": 39,
                 "y": 34
             }
-        ]
-    },
-    "targetsTypes": {
-        "all": [
-            "ground",
-            "fly"
-        ],
-        "ground": [
-            "ground"
-        ],
-        "fly": [
-            "fly"
         ]
     }
 }

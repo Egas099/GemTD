@@ -1,314 +1,580 @@
 {
-    "types": {
-        "emerald": {
-            "targetType": "all",
-            "quality": {
-                "chipped": {
-                    "minDamage": 4,
-                    "maxDamage": 7,
-                    "fireRate": 800,
-                    "fireRange": 71
-                },
-                "flawed": {
-                    "minDamage": 10,
-                    "maxDamage": 14,
-                    "fireRate": 1000,
-                    "fireRange": 79
-                },
-                "normal": {
-                    "minDamage": 15,
-                    "maxDamage": 25,
-                    "fireRate": 1000,
-                    "fireRange": 86
-                },
-                "flawless": {
-                    "minDamage": 30,
-                    "maxDamage": 38,
-                    "fireRate": 1000,
-                    "fireRange": 100
-                },
-                "perfect": {
-                    "minDamage": 80,
-                    "maxDamage": 90,
-                    "fireRate": 1000,
-                    "fireRange": 129
-                }
+    "qualitiesPools": {
+        "chipped": {
+            "emerald": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "poisonAttack",
+                        "params": {
+                            "effect": {
+                                "title": "poisoning",
+                                "params": {
+                                    "priority": 1,
+                                    "damage": 1,
+                                    "damageTick": 1000,
+                                    "speedReduce": 10,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "minDamage": 4,
+                "maxDamage": 7,
+                "fireRate": 800,
+                "fireRange": 71
+            },
+            "aquamarine": {
+                "targetType": "all",
+                "minDamage": 6,
+                "maxDamage": 8,
+                "fireRate": 500,
+                "fireRange": 52
+            },
+            "opal": {
+                "targetType": "all",
+                "minDamage": 5,
+                "maxDamage": 5,
+                "fireRate": 800,
+                "fireRange": 85
+            },
+            "ruby": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "splash",
+                        "params": {
+                            "radius": 60
+                        }
+                    }
+                ],
+                "minDamage": 8,
+                "maxDamage": 9,
+                "fireRate": 1000,
+                "fireRange": 114
+            },
+            "diamond": {
+                "targetType": "ground",
+                "skills": [
+                    {
+                        "title": "criticalDamage",
+                        "params": {
+                            "multiplier": 2,
+                            "сhance": 25
+                        }
+                    }
+                ],
+                "minDamage": 8,
+                "maxDamage": 12,
+                "fireRate": 800,
+                "fireRange": 71
+            },
+            "sapphire": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "decelerationAttack",
+                        "params": {
+                            "effect": {
+                                "title": "deceleration",
+                                "params": {
+                                    "priority": 1,
+                                    "speedReduce": 30,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "minDamage": 5,
+                "maxDamage": 8,
+                "fireRate": 800,
+                "fireRange": 71
+            },
+            "amethyst": {
+                "targetType": "all",
+                "minDamage": 9,
+                "maxDamage": 13,
+                "fireRate": 800,
+                "fireRange": 143
+            },
+            "topaz": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "multiTarget",
+                        "params": {
+                            "targetsCount": 2
+                        }
+                    }
+                ],
+                "minDamage": 4,
+                "maxDamage": 4,
+                "fireRate": 800,
+                "fireRange": 71
             }
         },
-        "aquamarine": {
-            "targetType": "all",
-            "quality": {
-                "chipped": {
-                    "minDamage": 6,
-                    "maxDamage": 8,
-                    "fireRate": 500,
-                    "fireRange": 52
-                },
-                "flawed": {
-                    "minDamage": 12,
-                    "maxDamage": 15,
-                    "fireRate": 500,
-                    "fireRange": 53
-                },
-                "normal": {
-                    "minDamage": 24,
-                    "maxDamage": 30,
-                    "fireRate": 500,
-                    "fireRange": 54
-                },
-                "flawless": {
-                    "minDamage": 48,
-                    "maxDamage": 55,
-                    "fireRate": 500,
-                    "fireRange": 57
-                },
-                "perfect": {
-                    "minDamage": 100,
-                    "maxDamage": 120,
-                    "fireRate": 500,
-                    "fireRange": 79
-                }
+        "flawed": {
+            "emerald": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "poisonAttack",
+                        "params": {
+                            "effect": {
+                                "title": "poisoning",
+                                "params": {
+                                    "priority": 2,
+                                    "damage": 2,
+                                    "damageTick": 1000,
+                                    "speedReduce": 15,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "minDamage": 10,
+                "maxDamage": 14,
+                "fireRate": 1000,
+                "fireRange": 79
+            },
+            "aquamarine": {
+                "targetType": "all",
+                "minDamage": 12,
+                "maxDamage": 15,
+                "fireRate": 500,
+                "fireRange": 53
+            },
+            "opal": {
+                "targetType": "all",
+                "minDamage": 10,
+                "maxDamage": 10,
+                "fireRate": 1000,
+                "fireRange": 100
+            },
+            "ruby": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "splash",
+                        "params": {
+                            "radius": 60
+                        }
+                    }
+                ],
+                "minDamage": 13,
+                "maxDamage": 16,
+                "fireRate": 1000,
+                "fireRange": 114
+            },
+            "diamond": {
+                "targetType": "ground",
+                "skills": [
+                    {
+                        "title": "criticalDamage",
+                        "params": {
+                            "multiplier": 2,
+                            "сhance": 25
+                        }
+                    }
+                ],
+                "minDamage": 16,
+                "maxDamage": 18,
+                "fireRate": 1000,
+                "fireRange": 78
+            },
+            "sapphire": {
+                "skills": [
+                    {
+                        "title": "decelerationAttack",
+                        "params": {
+                            "effect": {
+                                "title": "deceleration",
+                                "params": {
+                                    "priority": 1,
+                                    "speedReduce": 30,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "targetType": "all",
+                "minDamage": 10,
+                "maxDamage": 13,
+                "fireRate": 1000,
+                "fireRange": 107
+            },
+            "amethyst": {
+                "targetType": "fly",
+                "minDamage": 18,
+                "maxDamage": 25,
+                "fireRate": 1000,
+                "fireRange": 160
+            },
+            "topaz": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "multiTarget",
+                        "params": {
+                            "targetsCount": 2
+                        }
+                    }
+                ],
+                "minDamage": 8,
+                "maxDamage": 8,
+                "fireRate": 1000,
+                "fireRange": 71
             }
         },
-        "opal": {
-            "targetType": "all",
-            "quality": {
-                "chipped": {
-                    "minDamage": 5,
-                    "maxDamage": 5,
-                    "fireRate": 800,
-                    "fireRange": 85
-                },
-                "flawed": {
-                    "minDamage": 10,
-                    "maxDamage": 10,
-                    "fireRate": 1000,
-                    "fireRange": 100
-                },
-                "normal": {
-                    "minDamage": 20,
-                    "maxDamage": 20,
-                    "fireRate": 1000,
-                    "fireRange": 114
-                },
-                "flawless": {
-                    "minDamage": 40,
-                    "maxDamage": 40,
-                    "fireRate": 1000,
-                    "fireRange": 128
-                },
-                "perfect": {
-                    "minDamage": 85,
-                    "maxDamage": 85,
-                    "fireRate": 1000,
-                    "fireRange": 143
-                }
+        "normal": {
+            "emerald": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "poisonAttack",
+                        "params": {
+                            "effect": {
+                                "title": "poisoning",
+                                "params": {
+                                    "priority": 3,
+                                    "damage": 3,
+                                    "damageTick": 1000,
+                                    "speedReduce": 20,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "minDamage": 15,
+                "maxDamage": 25,
+                "fireRate": 1000,
+                "fireRange": 86
+            },
+            "aquamarine": {
+                "targetType": "all",
+                "minDamage": 24,
+                "maxDamage": 30,
+                "fireRate": 500,
+                "fireRange": 54
+            },
+            "opal": {
+                "targetType": "all",
+                "minDamage": 20,
+                "maxDamage": 20,
+                "fireRate": 1000,
+                "fireRange": 114
+            },
+            "ruby": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "splash",
+                        "params": {
+                            "radius": 60
+                        }
+                    }
+                ],
+                "minDamage": 20,
+                "maxDamage": 25,
+                "fireRate": 1000,
+                "fireRange": 114
+            },
+            "diamond": {
+                "targetType": "ground",
+                "skills": [
+                    {
+                        "title": "criticalDamage",
+                        "params": {
+                            "multiplier": 2,
+                            "сhance": 25
+                        }
+                    }
+                ],
+                "minDamage": 30,
+                "maxDamage": 37,
+                "fireRate": 1000,
+                "fireRange": 85
+            },
+            "sapphire": {
+                "skills": [
+                    {
+                        "title": "decelerationAttack",
+                        "params": {
+                            "effect": {
+                                "title": "deceleration",
+                                "params": {
+                                    "priority": 1,
+                                    "speedReduce": 30,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "targetType": "all",
+                "minDamage": 16,
+                "maxDamage": 21,
+                "fireRate": 1000,
+                "fireRange": 144
+            },
+            "amethyst": {
+                "targetType": "fly",
+                "minDamage": 30,
+                "maxDamage": 40,
+                "fireRate": 1000,
+                "fireRange": 178
+            },
+            "topaz": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "multiTarget",
+                        "params": {
+                            "targetsCount": 2
+                        }
+                    }
+                ],
+                "minDamage": 14,
+                "maxDamage": 14,
+                "fireRate": 1000,
+                "fireRange": 71
             }
         },
-        "ruby": {
-            "targetType": "all",
-            "quality": {
-                "chipped": {
-                    "skills": [
-                        "splash"
-                    ],
-                    "minDamage": 8,
-                    "maxDamage": 9,
-                    "fireRate": 1000,
-                    "fireRange": 114
-                },
-                "flawed": {
-                    "skills": [
-                        "splash"
-                    ],
-                    "minDamage": 13,
-                    "maxDamage": 16,
-                    "fireRate": 1000,
-                    "fireRange": 114
-                },
-                "normal": {
-                    "skills": [
-                        "splash"
-                    ],
-                    "minDamage": 20,
-                    "maxDamage": 25,
-                    "fireRate": 1000,
-                    "fireRange": 114
-                },
-                "flawless": {
-                    "skills": [
-                        "splash"
-                    ],
-                    "minDamage": 38,
-                    "maxDamage": 45,
-                    "fireRate": 1000,
-                    "fireRange": 114
-                },
-                "perfect": {
-                    "skills": [
-                        "splash"
-                    ],
-                    "minDamage": 80,
-                    "maxDamage": 104,
-                    "fireRate": 1000,
-                    "fireRange": 128
-                }
+        "flawless": {
+            "emerald": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "poisonAttack",
+                        "params": {
+                            "effect": {
+                                "title": "poisoning",
+                                "params": {
+                                    "priority": 4,
+                                    "damage": 6,
+                                    "damageTick": 1000,
+                                    "speedReduce": 30,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "minDamage": 30,
+                "maxDamage": 38,
+                "fireRate": 1000,
+                "fireRange": 100
+            },
+            "aquamarine": {
+                "targetType": "all",
+                "minDamage": 48,
+                "maxDamage": 55,
+                "fireRate": 500,
+                "fireRange": 57
+            },
+            "opal": {
+                "targetType": "all",
+                "minDamage": 40,
+                "maxDamage": 40,
+                "fireRate": 1000,
+                "fireRange": 128
+            },
+            "ruby": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "splash",
+                        "params": {
+                            "radius": 60
+                        }
+                    }
+                ],
+                "minDamage": 38,
+                "maxDamage": 45,
+                "fireRate": 1000,
+                "fireRange": 114
+            },
+            "diamond": {
+                "targetType": "ground",
+                "skills": [
+                    {
+                        "title": "criticalDamage",
+                        "params": {
+                            "multiplier": 2,
+                            "сhance": 25
+                        }
+                    }
+                ],
+                "minDamage": 58,
+                "maxDamage": 65,
+                "fireRate": 1000,
+                "fireRange": 92
+            },
+            "sapphire": {
+                "skills": [
+                    {
+                        "title": "decelerationAttack",
+                        "params": {
+                            "effect": {
+                                "title": "deceleration",
+                                "params": {
+                                    "priority": 1,
+                                    "speedReduce": 20,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "targetType": "all",
+                "minDamage": 30,
+                "maxDamage": 40,
+                "fireRate": 1000,
+                "fireRange": 121
+            },
+            "amethyst": {
+                "targetType": "fly",
+                "minDamage": 60,
+                "maxDamage": 75,
+                "fireRate": 1000,
+                "fireRange": 185
+            },
+            "topaz": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "multiTarget",
+                        "params": {
+                            "targetsCount": 2
+                        }
+                    }
+                ],
+                "minDamage": 25,
+                "maxDamage": 25,
+                "fireRate": 1000,
+                "fireRange": 71
             }
         },
-        "diamond": {
-            "targetType": "ground",
-            "quality": {
-                "chipped": {
-                    "minDamage": 8,
-                    "maxDamage": 12,
-                    "fireRate": 800,
-                    "fireRange": 71
-                },
-                "flawed": {
-                    "minDamage": 16,
-                    "maxDamage": 18,
-                    "fireRate": 1000,
-                    "fireRange": 78
-                },
-                "normal": {
-                    "minDamage": 30,
-                    "maxDamage": 37,
-                    "fireRate": 1000,
-                    "fireRange": 85
-                },
-                "flawless": {
-                    "minDamage": 58,
-                    "maxDamage": 65,
-                    "fireRate": 1000,
-                    "fireRange": 92
-                },
-                "perfect": {
-                    "minDamage": 140,
-                    "maxDamage": 150,
-                    "fireRate": 1000,
-                    "fireRange": 107
-                }
+        "perfect": {
+            "emerald": {
+                "skills": [
+                    {
+                        "title": "poisonAttack",
+                        "params": {
+                            "effect": {
+                                "title": "poisoning",
+                                "params": {
+                                    "priority": 5,
+                                    "damage": 15,
+                                    "damageTick": 1000,
+                                    "speedReduce": 10,
+                                    "duration": 5000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "minDamage": 80,
+                "maxDamage": 90,
+                "fireRate": 1000,
+                "fireRange": 129
+            },
+            "aquamarine": {
+                "targetType": "all",
+                "minDamage": 100,
+                "maxDamage": 120,
+                "fireRate": 500,
+                "fireRange": 79
+            },
+            "opal": {
+                "targetType": "all",
+                "minDamage": 85,
+                "maxDamage": 85,
+                "fireRate": 1000,
+                "fireRange": 143
+            },
+            "ruby": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "splash",
+                        "params": {
+                            "radius": 60
+                        }
+                    }
+                ],
+                "minDamage": 80,
+                "maxDamage": 104,
+                "fireRate": 1000,
+                "fireRange": 128
+            },
+            "diamond": {
+                "targetType": "ground",
+                "skills": [
+                    {
+                        "title": "criticalDamage",
+                        "params": {
+                            "multiplier": 2,
+                            "сhance": 25
+                        }
+                    }
+                ],
+                "minDamage": 140,
+                "maxDamage": 150,
+                "fireRate": 1000,
+                "fireRange": 107
+            },
+            "sapphire": {
+                "skills": [
+                    {
+                        "title": "decelerationAttack",
+                        "params": {
+                            "effect": {
+                                "title": "deceleration",
+                                "params": {
+                                    "priority": 1,
+                                    "speedReduce": 20,
+                                    "duration": 3000
+                                }
+                            }
+                        }
+                    }
+                ],
+                "targetType": "all",
+                "minDamage": 60,
+                "maxDamage": 75,
+                "fireRate": 1000,
+                "fireRange": 200
+            },
+            "amethyst": {
+                "targetType": "fly",
+                "minDamage": 140,
+                "maxDamage": 150,
+                "fireRate": 1000,
+                "fireRange": 214
+            },
+            "topaz": {
+                "targetType": "all",
+                "skills": [
+                    {
+                        "title": "multiTarget",
+                        "params": {
+                            "targetsCount": 2
+                        }
+                    }
+                ],
+                "minDamage": 75,
+                "maxDamage": 75,
+                "fireRate": 1000,
+                "fireRange": 85
             }
         },
-        "sapphire": {
-            "targetType": "all",
-            "quality": {
-                "chipped": {
-                    "minDamage": 5,
-                    "maxDamage": 8,
-                    "fireRate": 800,
-                    "fireRange": 71
-                },
-                "flawed": {
-                    "minDamage": 10,
-                    "maxDamage": 13,
-                    "fireRate": 1000,
-                    "fireRange": 107
-                },
-                "normal": {
-                    "minDamage": 16,
-                    "maxDamage": 21,
-                    "fireRate": 1000,
-                    "fireRange": 144
-                },
-                "flawless": {
-                    "minDamage": 30,
-                    "maxDamage": 40,
-                    "fireRate": 1000,
-                    "fireRange": 121
-                },
-                "perfect": {
-                    "minDamage": 60,
-                    "maxDamage": 75,
-                    "fireRate": 1000,
-                    "fireRange": 200
-                }
-            }
-        },
-        "amethyst": {
-            "targetType": "fly",
-            "quality": {
-                "chipped": {
-                    "minDamage": 9,
-                    "maxDamage": 13,
-                    "fireRate": 800,
-                    "fireRange": 143
-                },
-                "flawed": {
-                    "minDamage": 18,
-                    "maxDamage": 25,
-                    "fireRate": 1000,
-                    "fireRange": 160
-                },
-                "normal": {
-                    "minDamage": 30,
-                    "maxDamage": 40,
-                    "fireRate": 1000,
-                    "fireRange": 178
-                },
-                "flawless": {
-                    "minDamage": 60,
-                    "maxDamage": 75,
-                    "fireRate": 1000,
-                    "fireRange": 185
-                },
-                "perfect": {
-                    "minDamage": 140,
-                    "maxDamage": 150,
-                    "fireRate": 1000,
-                    "fireRange": 214
-                }
-            }
-        },
-        "topaz": {
-            "targetType": "all",
-            "quality": {
-                "chipped": {
-                    "skills": [
-                        "multiTarget"
-                    ],
-                    "minDamage": 4,
-                    "maxDamage": 4,
-                    "fireRate": 800,
-                    "fireRange": 71
-                },
-                "flawed": {
-                    "skills": [
-                        "multiTarget"
-                    ],
-                    "minDamage": 8,
-                    "maxDamage": 8,
-                    "fireRate": 1000,
-                    "fireRange": 71
-                },
-                "normal": {
-                    "skills": [
-                        "multiTarget"
-                    ],
-                    "minDamage": 14,
-                    "maxDamage": 14,
-                    "fireRate": 1000,
-                    "fireRange": 71
-                },
-                "flawless": {
-                    "skills": [
-                        "multiTarget"
-                    ],
-                    "minDamage": 25,
-                    "maxDamage": 25,
-                    "fireRate": 1000,
-                    "fireRange": 71
-                },
-                "perfect": {
-                    "skills": [
-                        "multiTarget"
-                    ],
-                    "minDamage": 75,
-                    "maxDamage": 75,
-                    "fireRate": 1000,
-                    "fireRange": 85
-                }
-            }
-        }
-    }
+        "great": {}
+    },
+    "spesial": {}
 }

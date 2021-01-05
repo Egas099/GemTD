@@ -1,12 +1,12 @@
 const skills = {
     multiTarget: {
-        capture: "attack of two additional targets",
         params: {
             targetsCount: 2,
         },
+        capture: `attack of 2 additional targets`,
         equip: function (params) {
-            const AttackEnemy = this.parent.getComponent("AttackEnemy");
-            AttackEnemy.addLocalEventListener("onFire", multiAttack.bind(AttackEnemy));
+            const AttackEnemy = this.getComponent("AttackEnemy");
+            this.events.addListener("onFire", multiAttack.bind(AttackEnemy));
 
             function multiAttack() {
                 let targets = findTargets();
@@ -35,25 +35,24 @@ const skills = {
     splash: {
         capture: "enemies take full damage within a 50 radius of the target.",
         params: {
-            radius: 50,
+            radius: 60,
         },
         equip: function (params) {
-            console.log("splash");
-            const AttackEnemy = this.parent.getComponent("AttackEnemy");
-            AttackEnemy.addLocalEventListener("onHit", splashDamage.bind(AttackEnemy));
+            const AttackEnemy = this.getComponent("AttackEnemy");
+            this.events.addListener("onHit", splashDamage.bind(AttackEnemy, params));
 
-            function splashDamage(_eventData) {
-                const targetsNearby = findTargetsNearby(_eventData.target)
+            function splashDamage(_params, _eventData) {
+                const targetsNearby = findTargetsNearby(_params, _eventData.target)
                 targetsNearby.forEach(target => {
                     target.getComponent("EnemyController").takeDamage(_eventData.damage);
                 });
             }
-            function findTargetsNearby(_target) {
+            function findTargetsNearby(_params, _target) {
                 const newTargets = game.prototypesGameObject.filter(function (object) {
                     if (object === this.target) return 0;
                     if (object.tag === "enemy") {
                         if (this.parent.state.targetType === "all" || this.parent.state.targetType === object.type) {
-                            if (Vector2.Distance(_target.position, object.position) <= 60) {
+                            if (Vector2.Distance(_target.position, object.position) <= _params.radius) {
                                 return 1;
                             }
                         }
@@ -61,6 +60,69 @@ const skills = {
                     return 0;
                 }.bind(AttackEnemy));
                 return newTargets;
+            }
+        }
+    },
+    criticalDamage: {
+        capture: "",
+        params: {
+            сhance: 25,
+            multiplier: 2,
+        },
+        equip: function (params) {
+            const AttackEnemy = this.getComponent("AttackEnemy");
+            this.events.addListener("onHit", criticalAttempt.bind(AttackEnemy, params));
+
+            function criticalAttempt(_params, _eventData) {
+                if (Math.random() * 100 <= _params.сhance) {
+                    if (GameObject.IsExist(_eventData.target)) {
+                        _eventData.target.getComponent("EnemyController").takeDamage(_eventData.damage * (_params.multiplier - 1));
+                    }
+                }
+            }
+        }
+    },
+    poisonAttack: {
+        capture: "",
+        params: {
+            effect: {
+                title: "poisoning",
+                params: {
+                    damage: 1,
+                    damageTick: 1000,
+                    speedReduce: 5,//%
+                    duration: 3000,
+                }
+            }
+
+        },
+        equip: function (params) {
+            const AttackEnemy = this.getComponent("AttackEnemy");
+            this.events.addListener("onHit", poison.bind(AttackEnemy, params));
+
+            function poison(_params, _eventData) {
+                _eventData.target.state.addEffect(effects[_params.effect.title](_params.effect.params));
+            }
+        }
+    },
+    decelerationAttack: {
+        capture: "",
+        params: {
+            effect: {
+                title: "deceleration",
+                params: {
+                    speedReduce: 30,//%
+                    duration: 3000,
+                }
+            }
+
+        },
+        equip: function (params) {
+            const AttackEnemy = this.getComponent("AttackEnemy");
+            this.events.addListener("onHit", poison.bind(AttackEnemy, params));
+
+            function poison(_params, _eventData) {
+                _eventData.target.state.addEffect(effects[_params.effect.title](_params.effect.params));
             }
         }
     }

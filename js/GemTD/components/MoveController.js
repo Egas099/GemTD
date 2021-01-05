@@ -62,8 +62,8 @@ class MoveController extends MonoBehavior {
 				this.moveToTarget();
 			} else {
 				this.parent.setPosition(null, new Vector2(
-					Math.round(((this.targetPos.x - this.parent.position.x) / distance) * movePoints),
-					Math.round(((this.targetPos.y - this.parent.position.y) / distance) * movePoints)
+					((this.targetPos.x - this.parent.position.x) / distance) * movePoints,
+					((this.targetPos.y - this.parent.position.y) / distance) * movePoints
 				));
 			}
 		}

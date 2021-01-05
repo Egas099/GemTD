@@ -31,7 +31,7 @@ class TextRender extends MonoBehavior {
 					style: this.style,
 					text: textLine,
 					x: this.parent.position.x - this.size.x,
-					y: this.parent.position.y - this.size.y + 20 * i,
+					y: this.parent.position.y - this.size.y + 25 * i,
 					maxWidth: this.parent.size.x
 				}
 			);

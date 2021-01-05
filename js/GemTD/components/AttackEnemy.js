@@ -16,25 +16,13 @@ class AttackEnemy extends MonoBehavior {
         this.values = _values;
         this.lastFire = Date.now();
         this.target = undefined;
-
-        ["onFire", "onHit"].forEach(event => {
-            this[event] = [];
-        });
+        this.targetsSetting = GameData.config.targetsSetting;
     }
-    addLocalEventListener(_event, _callback) {
-        this[_event].push(_callback);
-    }
-    localEvent(_eventName, _eventData) {
-        this[_eventName].forEach(event => {
-            event.call(this, _eventData);
-        });
-    }
-
-    findOneTarget = () => {
+    findTarget = () => {
         let newTarget, distance, minDist = this.parent.state.range;
         game.prototypesGameObject.forEach(object => {
-            if (object.getComponent("EnemyController")) {
-                if (this.parent.state.targetType === "all" || this.parent.state.targetType === object.type) {
+            if (object.tag === "enemy") {
+                if (this.targetTypeIsAllow(this.parent.state.targetType, object.state.type)) {
                     distance = Vector2.Distance(this.parent.position, object.position);
                     if (distance <= this.parent.state.range) {
                         if (distance < minDist) {
@@ -47,11 +35,18 @@ class AttackEnemy extends MonoBehavior {
         });
         return newTarget;
     }
+    targetTypeIsAllow(_attackType, _targetType) {
+        if (this.targetsSetting[_attackType].indexOf(_targetType) !== -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     tryAttack() {
         if (this.parent.state.fireRate < Date.now() - this.lastFire) {
             this.lastFire = Date.now();
             this.fire(this.target);
-            this.localEvent("onFire");
+            this.parent.events.callEvent("onFire")
         }
     }
     fire(_target) {
@@ -72,13 +67,13 @@ class AttackEnemy extends MonoBehavior {
     }
     Update() {
         if (this.target === undefined) {
-            this.target = this.findOneTarget();
+            this.target = this.findTarget();
         } else {
             if ((GameObject.IsExist(this.target) == true) &&
                 (Vector2.Distance(this.parent.position, this.target.position) <= this.parent.state.range)) {
                 this.tryAttack();
             } else {
-                this.target = this.findOneTarget();
+                this.target = this.findTarget();
             }
 
         }

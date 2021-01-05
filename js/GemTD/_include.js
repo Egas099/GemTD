@@ -1,5 +1,6 @@
 _currentDirPath = "js/GemTD/"
 include(_currentDirPath + "components/_include.js");
+include(_currentDirPath + "Effects.js");
 include(_currentDirPath + "Skills.js");
 include(_currentDirPath + "system.js");
 include(_currentDirPath + "spriteLoader.js");

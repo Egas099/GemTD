@@ -28,7 +28,9 @@ class Game {
     initInstant() {
         let instObj = Prefabs.initialInstancesOfGameObjects();
         for (let object in instObj) {
-            GameObject.Instantiate(instObj[object]);
+            if (instObj.hasOwnProperty(object)) {
+                GameObject.Instantiate(instObj[object]);
+            }
         }
     }
     get standFrameTime() {

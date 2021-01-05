@@ -160,7 +160,6 @@ const GS = GameSystem = class GameSystem {
 		GameData.buttons.upgrade.Disable();
 	}
 	static Update() {
-		// console.log(GameData.buttons.build.getComponent("SpriteRender").style.shadowBlur);
 		switch (GameData.game.state) {
 			case "build":
 				if (GameData.build.count === 0) {
@@ -170,7 +169,6 @@ const GS = GameSystem = class GameSystem {
 					GameData.build.count = GameData.config.game.buildCountPerWave;
 					if (GameData.config.game.rebuilCost <= GameData.amountGold)
 						GameData.buttons.rebuild.Enable();
-					Events.click.object.gem(GameData.choice.obj);
 				}
 				break;
 			case "choice":
@@ -240,7 +238,7 @@ const DS = DataSystem = class DataSystem {
 		} catch { }
 		if (!GameData.notTranslated.find(word => word == _word)) {
 			GameData.notTranslated.push(_word);
-			console.log(`Translation error: Can't translate "${_word}"`);
+			console.warn(`Translation error: Can't translate "${_word}"`);
 		}
 		return _word;
 	}
@@ -343,18 +341,39 @@ class Creator {
 					`${upFirst(DS.translate("rate of fire"))}: ${_object.state.fireRate}`,
 					`${upFirst(DS.translate("range"))}: ${_object.state.range}`,
 				];
+				infoText.push(`${upFirst(DS.translate("skills"))}:`)
+				let i = 1;
+				for (const skill in _object.state.skills) {
+					if (Object.hasOwnProperty.call(_object.state.skills, skill)) {
+						const element = _object.state.skills[skill];
+						infoText.push(`${i}. ${DS.translate(element.title)}`);
+						i++;
+					}
+				}
 				GameData.infoList.push(Creator.InstantGemRange(_object));
 				GameData.infoList.push(Creator.InstantSelectionOutline(_object));
 				break;
 			case "enemy":
 				infoText = () => {
-					return [
+					let text = [
 						`${upFirst(DS.translate("enemy"))}`,
 						"",
 						`${upFirst(DS.translate("health"))}: ${_object.state.health}`,
-						`${upFirst(DS.translate("speed"))}: ${_object.state.speed}`,
+						`${upFirst(DS.translate("speed"))}: ${Math.round10(_object.state.speed, -2)}`,
 						`${upFirst(DS.translate("damage"))}: ${_object.state.damage}`,
-					]
+					];
+					text.push(`${upFirst(DS.translate("effects"))}:`)
+					let curI = 1;
+					for (const effect in _object.state.effects) {
+						if (Object.hasOwnProperty.call(_object.state.effects, effect)) {
+							text.push(`${curI}. ${DS.translate(_object.state.effects[effect].name)}: ${Math.round(_object.state.effects[effect].timeLeft() / 100) / 10}`);
+							curI++;
+						}
+					}
+					if (curI === 1) {
+						text.push(`none`);
+					}
+					return text;
 				};
 				break;
 			case "chances":
@@ -433,7 +452,8 @@ class Creator {
 						health: {
 							value: this.health,
 							props: {
-								max: this.health
+								max: this.health,
+								min: 0,
 							}
 						},
 						damage: this.stats.damage + Math.round(GameData.wale / 10),
@@ -473,8 +493,13 @@ class Creator {
 				return [
 					new State(_parent),
 					new EnemyController(_parent, {
-						health: this.health,
-						healthMax: this.health,
+						health: {
+							value: this.health,
+							props: {
+								max: this.health,
+								min: 0,
+							}
+						},
 						damage: this.stats.damage + Math.round(GameData.wale / 10),
 						type: this.stats.type,
 					}),
@@ -495,7 +520,7 @@ class Creator {
 	}
 	static InstantShell(_owner, _target, _damage) {
 		GameObject.Instantiate({
-			shellSpeed: Math.floor(_owner.state.range/11),
+			shellSpeed: Math.floor(_owner.state.range / 11),
 			owner: _owner,
 			target: _target,
 			damage: _damage,
@@ -523,7 +548,7 @@ class Creator {
 		} else {
 			dropped = Algo.getRandomGem();
 		}
-		const stats = GameData.gems.info.types[dropped.gem].quality[dropped.quality];
+		const stats = GameData.gems.info.qualitiesPools[dropped.quality][dropped.gem];
 		const gem = GameObject.Instantiate({
 			attributes: {
 				name: dropped.gem,
@@ -534,9 +559,9 @@ class Creator {
 			position: new Vector2(_position.x, _position.y - 5),
 			size: new Vector2(40, 50),
 			stats: stats,
-			targetType: GameData.gems.info.types[dropped.gem].targetType,
 			createComponentsFor(_parent) {
 				return [
+					new EventController(_parent),
 					new State(_parent, this.stats.skills),
 					new SpriteRender(_parent,
 						sprites.gems[dropped.gem + dropped.quality],
@@ -556,7 +581,7 @@ class Creator {
 						},
 						range: this.stats.fireRange * 1.5,
 						fireRate: this.stats.fireRate,
-						targetType: this.targetType,
+						targetType: this.stats.targetType,
 					}),
 				];
 			},
@@ -609,9 +634,16 @@ class Algo {
 			}
 			chance += arrChance[GameData.gems.qualities[i + 1]];
 		}
-		// droppedGem = GameData.gems.names[Math.floor(Math.random() * GameData.gems.names.length)];
-		let debugGems = ["ruby", "topaz"];
-		droppedGem = debugGems[Math.floor(Math.random() * debugGems.length)];
+		let gemNames = Object.keys(GameData.gems.info.qualitiesPools[droppedQuality]);
+		droppedGem = gemNames[Math.floor(Math.random() * gemNames.length)];
+
+		////debug///////////////////////////
+		let debugQuality = ["chipped"];
+		droppedQuality = debugQuality[Math.floor(Math.random() * debugQuality.length)];
+		// let debugGems = ["diamond"];
+		// droppedGem = debugGems[Math.floor(Math.random() * debugGems.length)];
+		////debug///////////////////////////
+
 		return {
 			gem: droppedGem,
 			quality: droppedQuality
@@ -683,7 +715,7 @@ class Algo {
 					predel++;
 					return findVay(newNode);
 				} else {
-					console.log("Предел количества обходимых вершин");
+					console.error("The limit of the climbed vertices is reached (Algorithm A *)");
 				}
 			}
 		}
